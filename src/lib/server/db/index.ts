@@ -10,7 +10,7 @@ export type { SQL } from 'drizzle-orm'
 
 if (!env.DATABASE_URL) throw new Error('DATABASE_URL is not set');
 
-const client = postgres(env.DATABASE_URL);
+const client = postgres(env.DATABASE_URL, { prepare: false });
 
 export const t = orm
 export const schema = {
