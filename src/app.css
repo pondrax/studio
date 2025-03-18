@@ -1,0 +1,13 @@
+@import 'tailwindcss';
+
+@plugin "daisyui" {
+	themes:
+		corporate --default,
+		business --prefersdark;
+}
+
+/* Hide number input spinner in WebKit browsers */
+[type='number']::-webkit-inner-spin-button,
+[type='number']::-webkit-outer-spin-button {
+	@apply appearance-none;
+}
