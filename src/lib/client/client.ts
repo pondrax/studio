@@ -74,6 +74,55 @@ export class Client<Schema extends Record<string, any>> {
       }
     };
   }
+  notifications() {
+    return {
+      getList: async (params?: Record<string, any>): Promise<PaginatedResponse<Schema["_notifications"]>> => {
+        const url = new URL(`${this.baseUrl}/api/admins/notifications`);
+
+        if (params) {
+          Object.entries(params).forEach(([key, value]) =>
+            url.searchParams.append(key, String(value))
+          );
+        }
+
+        let request = new Request(url.toString(), { method: 'GET' });
+        request = await this.executeBeforeSend(request);
+
+        const response = await fetch(request);
+        return this.executeAfterSend(request, response);
+      },
+      save: async (records: Record<string, Schema["_notifications"]>) => {
+        const forms = new FormData();
+
+        for (const [itemId, data] of Object.entries(records)) {
+          for (const [key, value] of Object.entries(data)) {
+            forms.append(`${itemId}:${key}`, value as any);
+          }
+        }
+
+        const url = new URL(`${this.baseUrl}/api/admins/notifications`);
+        let request = new Request(url.toString(), {
+          method: 'POST',
+          body: forms,
+        });
+        request = await this.executeBeforeSend(request);
+
+        const response = await fetch(request);
+        return this.executeAfterSend(request, response);
+      },
+      delete: async (ids: string[]) => {
+        const url = new URL(`${this.baseUrl}/api/admins/notifications`);
+        let request = new Request(url.toString(), {
+          method: 'DELETE',
+          body: JSON.stringify(ids),
+        });
+        request = await this.executeBeforeSend(request);
+
+        const response = await fetch(request);
+        return this.executeAfterSend(request, response);
+      }
+    };
+  }
 
   from<TableName extends keyof Schema>(tableName: TableName) {
     return {

@@ -8,6 +8,18 @@ export type Schema = {
     created: Date;
     updated: Date;
   }
+  _notifications: {
+    id: string;
+    type: 'email' | 'table';
+    to: string;
+    subject?: string;
+    content?: string;
+    status?: string;
+    scheduled?: string;
+    sent?: string;
+    created: string;
+    updated: string;
+  }
   users: {
     id: string;
     username: string;

@@ -60,9 +60,7 @@
 		</div>
 	</div>
 	<div class="drawer-side z-10">
-		<!-- <label for="overlay" aria-label="close sidebar" class="drawer-overlay"></label> -->
 		<ul class="menu bg-base-200 text-base-content min-h-full w-64 p-2">
-			<!-- Sidebar content here -->
 			<li>
 				<a href="/_/">
 					<img src="/favicon.png" alt="favicon" class="h-7" />
@@ -80,8 +78,6 @@
 					Collection
 					<button class="btn btn-xs btn-secondary ml-auto">+</button>
 				</div>
-				<!-- <ul> -->
-				<!-- </ul> -->
 			</li>
 			<li>
 				<ul>
@@ -117,9 +113,9 @@
 				</ul>
 			</li> -->
 			<li>
-				<a href="/_/logs">
-					<iconify-icon icon="bx:envelope" class="text-2xl"></iconify-icon>
-					Mails
+				<a href="/_/notifications">
+					<iconify-icon icon="bx:notification" class="text-2xl"></iconify-icon>
+					Notifications
 				</a>
 			</li>
 			<li>

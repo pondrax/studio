@@ -12,8 +12,8 @@ export const _admins = pgTable('_admins', {
   email: text('email'),
   tokenKey: text('tokenKey'),
   password: text('password').notNull(),
-  created: timestamp("created", { withTimezone: true }).defaultNow(),
-  updated: timestamp("updated", { withTimezone: true }).defaultNow().$onUpdate(() => new Date())
+  created: timestamp("created", { withTimezone: true, mode: 'string' }).defaultNow(),
+  updated: timestamp("updated", { withTimezone: true, mode: 'string' }).defaultNow().$onUpdate(() => new Date())
 });
 
 export const _collections = pgTable('_collections', {
@@ -28,16 +28,16 @@ export const _collections = pgTable('_collections', {
   createRule: text('createRule'),
   updateRule: text('updateRule'),
   deleteRule: text('deleteRule'),
-  created: timestamp("created", { withTimezone: true }).defaultNow(),
-  updated: timestamp("updated", { withTimezone: true }).defaultNow().$onUpdate(() => new Date())
+  created: timestamp("created", { withTimezone: true, mode: 'string' }).defaultNow(),
+  updated: timestamp("updated", { withTimezone: true, mode: 'string' }).defaultNow().$onUpdate(() => new Date())
 });
 
 export const _params = pgTable('_params', {
   id: text('id').primaryKey().notNull().$default(() => createId(15)),
   key: text('key'),
   value: json('value'),
-  created: timestamp("created", { withTimezone: true }).defaultNow(),
-  updated: timestamp("updated", { withTimezone: true }).defaultNow().$onUpdate(() => new Date())
+  created: timestamp("created", { withTimezone: true, mode: 'string' }).defaultNow(),
+  updated: timestamp("updated", { withTimezone: true, mode: 'string' }).defaultNow().$onUpdate(() => new Date())
 });
 
 export const _externalAuths = pgTable('_externalAuths', {
@@ -46,19 +46,21 @@ export const _externalAuths = pgTable('_externalAuths', {
   recordId: text('recordId'),
   provider: text('provider'),
   providerId: text('providerId'),
-  created: timestamp("created", { withTimezone: true }).defaultNow(),
-  updated: timestamp("updated", { withTimezone: true }).defaultNow().$onUpdate(() => new Date())
+  created: timestamp("created", { withTimezone: true, mode: 'string' }).defaultNow(),
+  updated: timestamp("updated", { withTimezone: true, mode: 'string' }).defaultNow().$onUpdate(() => new Date())
 });
 
-export const _mailStatus = pgEnum('mailStatus', ['pending', 'sent', 'failed']);
-export const _mails = pgTable('_mails', {
+export const _notificationType = pgEnum('notificationType', ['email', 'table']);
+export const _notificationStatus = pgEnum('notificationStatus', ['pending', 'sent', 'failed']);
+export const _notifications = pgTable('_notifications', {
   id: text('id').primaryKey().notNull().$default(() => createId(15)),
   to: text('to'),
-  title: json('title'),
+  subject: json('subject'),
   content: text('content'),
-  status: _mailStatus('status').default('pending'),
-  created: timestamp("created", { withTimezone: true }).defaultNow(),
-  updated: timestamp("updated", { withTimezone: true }).defaultNow().$onUpdate(() => new Date())
+  type: _notificationType('type').default('table'),
+  status: _notificationStatus('status').default('pending'),
+  created: timestamp("created", { withTimezone: true, mode: 'string' }).defaultNow(),
+  updated: timestamp("updated", { withTimezone: true, mode: 'string' }).defaultNow().$onUpdate(() => new Date())
 });
 
 export const _logs = pgTable('_logs', {
@@ -66,13 +68,13 @@ export const _logs = pgTable('_logs', {
   level: integer('level'),
   message: text('message'),
   data: json('data'),
-  created: timestamp("created", { withTimezone: true }).defaultNow(),
-  updated: timestamp("updated", { withTimezone: true }).defaultNow().$onUpdate(() => new Date())
+  created: timestamp("created", { withTimezone: true, mode: 'string' }).defaultNow(),
+  updated: timestamp("updated", { withTimezone: true, mode: 'string' }).defaultNow().$onUpdate(() => new Date())
 });
 
 export const _session = pgTable('_session', {
   id: text('id').primaryKey().notNull().$default(() => createId(15)),
   userId: text('user_id').notNull(),
   table: text('table').notNull(),
-  expired: timestamp('expired', { withTimezone: true, mode: 'date' }).notNull()
+  expired: timestamp('expired', { withTimezone: true, mode: 'string' }).notNull()
 });
