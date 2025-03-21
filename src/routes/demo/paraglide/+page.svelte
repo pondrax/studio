@@ -1,18 +1,12 @@
 <script lang="ts">
-	import type { AvailableLanguageTag } from '$lib/paraglide/runtime';
-	import { i18n } from '$lib/i18n';
-	import { page } from '$app/state';
-	import { goto } from '$app/navigation';
+	import { locales, localizeHref } from '$lib/paraglide/runtime';
 	import * as m from '$lib/paraglide/messages.js';
-
-	function switchToLanguage(newLanguage: AvailableLanguageTag) {
-		const canonicalPath = i18n.route(page.url.pathname);
-		const localisedPath = i18n.resolveRoute(canonicalPath, newLanguage);
-		goto(localisedPath);
-	}
+	import { page } from '$app/state';
 </script>
 
 <h1>{m.hello_world({ name: 'SvelteKit User' })}</h1>
-<div>
-	<button onclick={() => switchToLanguage('en')}>en</button>
+<div class="flex gap-2">
+	{#each locales as locale}
+		<a href={localizeHref(page.url.pathname, { locale })}>{locale}</a>
+	{/each}
 </div>

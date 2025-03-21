@@ -38,8 +38,8 @@ export const comments = pgTable("comments", {
     .$default(() => createId(15)),
   content: text("content").notNull(),
   file: text("file"),
-  userId: text("user_id").notNull().references(() => users.id),
-  postId: text("post_id").notNull().references(() => posts.id),
+  userId: text("user_id").references(() => users.id),
+  postId: text("post_id").references(() => posts.id),
   created: timestamp("created", { withTimezone: true, mode: 'string' }).defaultNow(),
   updated: timestamp("updated", { withTimezone: true, mode: 'string' }).defaultNow().$onUpdate(() => sql`NOW()`)
 });

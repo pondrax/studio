@@ -49,6 +49,7 @@ export const _externalAuths = pgTable('_externalAuths', {
   created: timestamp("created", { withTimezone: true }).defaultNow(),
   updated: timestamp("updated", { withTimezone: true }).defaultNow().$onUpdate(() => new Date())
 });
+
 export const _mailStatus = pgEnum('mailStatus', ['pending', 'sent', 'failed']);
 export const _mails = pgTable('_mails', {
   id: text('id').primaryKey().notNull().$default(() => createId(15)),
