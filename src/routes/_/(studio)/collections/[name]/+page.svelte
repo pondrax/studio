@@ -1,14 +1,24 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
-	import { api } from '$lib/client';
 	import { Modal } from '$lib/components';
-	import { app, createId, copyToClipboard, downloadJSON, downloadCSV } from '$lib/utils';
+	import {
+		app,
+		api,
+		d,
+		createId,
+		copyToClipboard,
+		downloadJSON,
+		downloadCSV,
+		type Schema
+	} from '$lib/app';
 
 	type Collections = Awaited<ReturnType<typeof getCollections>>;
 	type Item = Collections['items'][number];
 
+	let collectionName = $derived(page.params.name) as keyof Schema;
 	let collections: Collections | undefined = $state();
+
 	let selections: Item[] = $state([]);
 	let query = $state({
 		page: Number(page.url.searchParams.get('page')) || 1,
@@ -20,9 +30,8 @@
 
 	type Forms = {
 		edit?: boolean;
-		save?: { list?: Item };
+		save?: Record<string, Item>;
 		del?: Item[];
-		// del?: Partial<Reference>[];
 	};
 
 	let forms: Forms = $state({
@@ -31,58 +40,64 @@
 		del: undefined
 	});
 
-	let columns = $derived(Object.keys(collections?.items?.at(-1) || {}).map((field) => field));
+	// let columns = $state([
+	// 	{ field: 'id', type: 'text' },
+	// 	{ field: 'title', type: 'text' },
+	// 	{ field: 'created', type: 'datetime' },
+	// 	{ field: 'updated', type: 'datetime' }
+	// ]);
+
+	let columns = $derived(
+		Object.keys(collections?.items?.at(-1) || {}).map((field) => ({
+			field,
+			type: ['created', 'updated'].includes(field) ? 'datetime' : 'text'
+		}))
+	);
 	let appends: Item[] = $state([]);
 	let records: Record<string, Item> = $state({});
 	let editable: Record<string, Item> = $state({});
 
 	function addRecord() {
-		const id = createId(15);
-		records[id] = {
-			id,
-			created: new Date().toISOString(),
-			updated: new Date().toISOString()
+		const record = {
+			id: createId(15),
+			created: d().format('YYYY-MM-DDTHH:mm'),
+			updated: d().format('YYYY-MM-DDTHH:mm')
 		};
+		records[record.id] = record;
 		appends = [
 			{
-				...records[id],
+				...record,
 				__new: true
 			},
 			...appends
 		];
 	}
-	function discardRecord() {
+	async function getCollections() {
+		const result = await api.from(collectionName).getList(query);
+		return result;
+	}
+
+	async function save(data: NonNullable<Forms['save']>) {
+		const result = await api.from(collectionName).save(data);
+		forms.save = undefined;
+		refresh();
+	}
+
+	async function del(data: NonNullable<Forms['del']>) {
+		const ids = data.map((item) => item.id);
+		await api.from(collectionName).delete(ids);
+		forms.del = undefined;
+		refresh();
+	}
+
+	function reset() {
 		appends = [];
 		records = {};
 		editable = {};
 	}
-	async function getCollections() {
-		const result = await api.from(page.params.name).getList(query);
-		return result;
-	}
-	async function del(data: NonNullable<Forms['del']>) {
-		app.loading = true;
-		const ids = data.map((item) => item.id);
-		try {
-			await api.from(page.params.name).delete(ids);
-			forms.del = undefined;
-			refresh();
-		} catch (e) {
-			console.log(e);
-		}
-		setTimeout(() => {
-			app.loading = false;
-		}, 2000);
-	}
 	async function refresh() {
-		records = {};
-		editable = {};
-		selections = [];
-		app.loading = true;
+		reset();
 		collections = await getCollections();
-		setTimeout(() => {
-			app.loading = false;
-		}, 2000);
 	}
 
 	$effect(() => {
@@ -95,6 +110,19 @@
 	});
 </script>
 
+<Modal title="Save Record" bind:data={forms.save}>
+	{#snippet children(items)}
+		<p>Do you want to save this items ?</p>
+		<div class="mt-5 max-h-100 overflow-auto">
+			{#each Object.entries(items) as [id, item] (id)}
+				<p></p>
+			{/each}
+		</div>
+		<button class="btn btn-error mt-5" onclick={() => save(items)} disabled={app.loading}>
+			Save
+		</button>
+	{/snippet}
+</Modal>
 <Modal title="Delete Record" bind:data={forms.del}>
 	{#snippet children(items)}
 		<p>Do you want to remove this items ?</p>
@@ -103,7 +131,7 @@
 				<p>
 					{columns
 						.slice(0, 2)
-						.map((field) => item[field])
+						.map(({ field }) => item[field])
 						.join(' - ')}
 				</p>
 			{/each}
@@ -123,7 +151,7 @@
 		<iconify-icon icon="bx:menu"></iconify-icon>
 	</button>
 
-	<h1 class="text-xl capitalize">collections / {page.params.name}</h1>
+	<h1 class="text-xl capitalize">Collections / {page.params.name}</h1>
 
 	<button
 		class="btn btn-sm btn-soft drawer-button ml-auto"
@@ -148,11 +176,11 @@
 		</button>
 
 		{#if Object.keys(records).length > 0}
-			<button class="btn btn-sm btn-primary" aria-label="save">
+			<button class="btn btn-sm btn-primary" aria-label="save" onclick={() => save(records)}>
 				<iconify-icon icon="bx:save" class="text-lg"></iconify-icon>
 				({Object.keys(records).length}) Save Record
 			</button>
-			<button class="btn btn-sm btn-ghost underline" aria-label="discard" onclick={discardRecord}>
+			<button class="btn btn-sm btn-ghost underline" aria-label="discard" onclick={reset}>
 				Discard changes
 			</button>
 		{/if}
@@ -241,7 +269,7 @@
 		<table class="table-xs table-pin-rows table-pin-cols table">
 			<thead>
 				<tr>
-					<th class="w-1">
+					<th class="sticky z-1 w-1">
 						<input
 							type="checkbox"
 							class="checkbox checkbox-sm"
@@ -251,52 +279,88 @@
 							}}
 						/>
 					</th>
-					{#each columns as field}
-						<th>{field}</th>
+					{#each columns as { field, type }}
+						<th>
+							<span>
+								{field}
+							</span>
+							<span class="text-base-content/50 font-light">
+								{type}
+							</span>
+						</th>
 					{/each}
 				</tr>
 			</thead>
 			<tbody>
 				{#each appends.concat(...(collections.items || [])) as item (item.id)}
 					<tr>
-						<th>
-							<input
-								type="checkbox"
-								class="checkbox checkbox-sm"
-								bind:group={selections}
-								value={item}
-							/>
+						<th class="sticky z-1">
+							{#if item.__new}
+								<button
+									class="btn btn-xs btn-soft px-1"
+									aria-label="remove"
+									onclick={() => {
+										const { [item.id]: _, ...updatedRecords } = records;
+										records = updatedRecords;
+										appends = appends.filter((x) => x.id !== item.id);
+									}}
+								>
+									<iconify-icon icon="bx:x"></iconify-icon>
+								</button>
+							{:else}
+								<input
+									type="checkbox"
+									class="checkbox checkbox-sm"
+									bind:group={selections}
+									value={item}
+								/>
+							{/if}
 						</th>
-						{#each columns as field}
-							<td class="p-0!" class:w-50={field === 'id'}>
+						{#each columns as { field, type }}
+							<td class="p-0!" class:w-50={field === 'id'} class:w-30={type === 'datetime'}>
 								<div class="flex">
-									{#if field === 'id'}
-										<button
-											class="btn btn-xs btn-soft tooltip m-1"
-											aria-label="copy"
-											data-tip="Copy Value"
-											onclick={(event) => copyToClipboard(event, item[field])}
-										>
-											<iconify-icon icon="bx:copy"></iconify-icon>
-										</button>
-									{/if}
 									<div
 										class={`
                       input input-sm input-ghost w-full outline-offset-0! 
                       ${item.__new || records?.[item.id]?.[field] ? 'bg-warning/10!' : ''}`}
 									>
-										<input
-											type="text"
-											class="w-full"
-											value={records[item.id]?.[field] ?? item[field]}
-											oninput={(event) => {
-												const target = event.target as HTMLInputElement;
-												records[item.id] = { ...records[item.id], [field]: target.value };
-											}}
-											readonly={!editable?.[item.id]?.[field]}
+										{#if field === 'id'}
+											<button
+												class="btn btn-xs btn-soft tooltip -ml-1"
+												aria-label="copy"
+												data-tip="Copy Value"
+												onclick={(event) => copyToClipboard(event, item[field])}
+											>
+												<iconify-icon icon="bx:copy"></iconify-icon>
+											</button>
+										{/if}
+										{#if type == 'datetime'}
+											<input
+												type="datetime-local"
+												class="w-full"
+												value={records[item.id]?.[field] ??
+													d(item[field]).format('YYYY-MM-DDTHH:mm')}
+												oninput={(event) => {
+													const target = event.target as HTMLInputElement;
+													records[item.id] = { ...records[item.id], [field]: target.value };
+												}}
+											/>
+										{:else}
+											<input
+												type="text"
+												class="w-full min-w-30"
+												value={records[item.id]?.[field] ?? item[field]}
+												oninput={(event) => {
+													const target = event.target as HTMLInputElement;
+													records[item.id] = { ...records[item.id], [field]: target.value };
+												}}
+											/>
+										{/if}
+
+										<!-- readonly={!editable?.[item.id]?.[field]}
 											ondblclick={() =>
 												(editable[item.id] = { ...editable[item.id], [field]: true })}
-										/>
+										 -->
 									</div>
 								</div>
 							</td>

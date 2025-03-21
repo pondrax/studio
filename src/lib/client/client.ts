@@ -9,17 +9,45 @@ type PaginatedResponse<T> = {
 
 export class Client<Schema extends Record<string, any>> {
   private baseUrl: string;
+  private beforeSendHook?: (context: { request: Request }) => Promise<Request> | Request;
+  private afterSendHook?: (context: { request: Request; response: Response; data: any }) => Promise<any> | any;
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
   }
 
-  admins<TableName extends keyof Schema>(tableName: TableName) {
+  beforeSend(hook: (context: { request: Request }) => Promise<Request> | Request): void {
+    this.beforeSendHook = hook;
+  }
+
+  afterSend(hook: (context: { request: Request; response: Response; data: any }) => Promise<any> | any): void {
+    this.afterSendHook = hook;
+  }
+
+  private async executeBeforeSend(request: Request): Promise<Request> {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      request.headers.set('Authorization', `Bearer ${token}`);
+    }
+
+    if (this.beforeSendHook) {
+      return this.beforeSendHook({ request });
+    }
+    return request;
+  }
+
+  private async executeAfterSend(request: Request, response: Response): Promise<any> {
+    const data = await response.json();
+    if (this.afterSendHook) {
+      return this.afterSendHook({ request, response, data });
+    }
+    return data;
+  }
+
+  logs() {
     return {
-      getList: async (
-        params?: Record<string, any>
-      ): Promise<PaginatedResponse<Schema[TableName]>> => {
-        const url = new URL(`${this.baseUrl}/api/admins/schema`);
+      getList: async (params?: Record<string, any>): Promise<PaginatedResponse<Schema["_logs"]>> => {
+        const url = new URL(`${this.baseUrl}/api/admins/logs`);
 
         if (params) {
           Object.entries(params).forEach(([key, value]) =>
@@ -27,20 +55,29 @@ export class Client<Schema extends Record<string, any>> {
           );
         }
 
-        const response = await fetch(url.toString());
-        if (!response.ok) {
-          throw new Error(`API Error: ${response.status} ${response.statusText}`);
-        }
+        let request = new Request(url.toString(), { method: 'GET' });
+        request = await this.executeBeforeSend(request);
 
-        return response.json() as Promise<PaginatedResponse<Schema[TableName]>>;
+        const response = await fetch(request);
+        return this.executeAfterSend(request, response);
+      },
+      delete: async (ids: string[]) => {
+        const url = new URL(`${this.baseUrl}/api/admins/logs`);
+        let request = new Request(url.toString(), {
+          method: 'DELETE',
+          body: JSON.stringify(ids),
+        });
+        request = await this.executeBeforeSend(request);
+
+        const response = await fetch(request);
+        return this.executeAfterSend(request, response);
       }
     };
   }
+
   from<TableName extends keyof Schema>(tableName: TableName) {
     return {
-      getList: async (
-        params?: Record<string, any>
-      ) => {
+      getList: async (params?: Record<string, any>) => {
         const url = new URL(`${this.baseUrl}/api/collections/${String(tableName)}/records`);
 
         if (params) {
@@ -49,54 +86,46 @@ export class Client<Schema extends Record<string, any>> {
           );
         }
 
-        const response = await fetch(url.toString(), {
+        let request = new Request(url.toString(), {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': localStorage.authToken
           },
         });
-        if (!response.ok) {
-          throw new Error(`API Error: ${response.status} ${response.statusText}`);
+        request = await this.executeBeforeSend(request);
+
+        const response = await fetch(request);
+        return this.executeAfterSend(request, response);
+      },
+      save: async (records: Record<string, FormData>) => {
+        const forms = new FormData();
+
+        for (const [itemId, data] of Object.entries(records)) {
+          for (const [key, value] of Object.entries(data)) {
+            forms.append(`${itemId}:${key}`, value);
+          }
         }
 
-        return response.json() as Promise<PaginatedResponse<Schema[TableName]>>;
-      },
-      save: async (
-        records: Record<string, FormData>,
-      ) => {
         const url = new URL(`${this.baseUrl}/api/collections/${String(tableName)}/records`);
-        const response = await fetch(url.toString(), {
+        let request = new Request(url.toString(), {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': localStorage.authToken
-          },
-          body: JSON.stringify(records),
+          body: forms,
         });
-        if (!response.ok) {
-          throw new Error(`API Error: ${response.status} ${response.statusText}`);
-        }
+        request = await this.executeBeforeSend(request);
 
-        return response.json() as Promise<Schema[TableName]>;
+        const response = await fetch(request);
+        return this.executeAfterSend(request, response);
       },
-      delete: async (
-        ids: string[],
-      ) => {
+      delete: async (ids: string[]) => {
         const url = new URL(`${this.baseUrl}/api/collections/${String(tableName)}/records`);
-        const response = await fetch(url.toString(), {
+        let request = new Request(url.toString(), {
           method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': localStorage.authToken
-          },
           body: JSON.stringify(ids),
         });
-        if (!response.ok) {
-          throw new Error(`API Error: ${response.status} ${response.statusText}`);
-        }
+        request = await this.executeBeforeSend(request);
 
-        return response.json() as Promise<Schema[TableName]>;
+        const response = await fetch(request);
+        return this.executeAfterSend(request, response);
       },
     };
   }

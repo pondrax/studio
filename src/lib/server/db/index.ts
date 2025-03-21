@@ -4,7 +4,7 @@ import postgres from 'postgres';
 import * as core from './schema/core'
 import * as app from './schema/app'
 import * as orm from 'drizzle-orm';
-import dynamic, { createPgTable } from './utils';
+import { createPgTable } from './utils';
 
 export type { SQL } from 'drizzle-orm'
 
@@ -18,6 +18,7 @@ export const schema = {
   ...app
 }
 export const sdynamic = {
+  ...core,
   users: createPgTable('users', [
     { field: 'username', type: 'text', notNull: true },
     { field: 'email', type: 'text', notNull: true },
@@ -44,5 +45,26 @@ export const db = drizzle({
   schema: sdynamic
 });
 
+export const logger = async ({ level = 0, data, request }: { level: number, data: any, request: Request }) => {
+
+  const remoteIp = request.headers.get('x-forwarded-for') ||
+    request.headers.get('cf-connecting-ip') ||
+    request.headers.get('x-real-ip') ||
+    request.headers.get('x-client-ip') ||
+    '127.0.0.1';
+
+  await db.insert(schema['_logs']).values([
+    {
+      level,
+      message: 'err',
+      data: {
+        ...data,
+        url: request.url,
+        method: request.method,
+        remoteIp
+      },
+    }
+  ])
+}
 
 // console.log(db.select().from(dynamic))

@@ -1,8 +1,11 @@
-import { relations } from "drizzle-orm";
-import { createId } from "../../../utils";
-import { sql } from 'drizzle-orm'
+import { init } from "@paralleldrive/cuid2";
+import { relations, sql } from "drizzle-orm";
 import { pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
+export const createId = (length = 21) => {
+  const cuid = init({ length });
+  return cuid();
+};
 export const users = pgTable("users", {
   id: text("id")
     .primaryKey()
@@ -11,13 +14,8 @@ export const users = pgTable("users", {
   email: text("email").notNull().unique(),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
-  created: timestamp("created", { withTimezone: true, mode: "date" })
-    .notNull()
-    .default(sql`NOW()`),
-  updated: timestamp("updated", { withTimezone: true, mode: "date" })
-    .notNull()
-    .default(sql`NOW()`)
-    .$onUpdate(() => sql`NOW()`)
+  created: timestamp("created", { withTimezone: true, mode: 'string' }).defaultNow(),
+  updated: timestamp("updated", { withTimezone: true, mode: 'string' }).defaultNow().$onUpdate(() => sql`NOW()`)
 });
 
 export const posts = pgTable("posts", {
@@ -29,13 +27,8 @@ export const posts = pgTable("posts", {
   slug: text("slug").notNull().unique(),
   content: text("content").notNull(),
   userId: text("user_id").notNull().references(() => users.id),
-  created: timestamp("created", { withTimezone: true, mode: "date" })
-    .notNull()
-    .default(sql`NOW()`),
-  updated: timestamp("updated", { withTimezone: true, mode: "date" })
-    .notNull()
-    .default(sql`NOW()`)
-    .$onUpdate(() => sql`NOW()`)
+  created: timestamp("created", { withTimezone: true, mode: 'string' }).defaultNow(),
+  updated: timestamp("updated", { withTimezone: true, mode: 'string' }).defaultNow().$onUpdate(() => sql`NOW()`)
 });
 
 export const comments = pgTable("comments", {
@@ -47,13 +40,8 @@ export const comments = pgTable("comments", {
   file: text("file"),
   userId: text("user_id").notNull().references(() => users.id),
   postId: text("post_id").notNull().references(() => posts.id),
-  created: timestamp("created", { withTimezone: true, mode: "date" })
-    .notNull()
-    .default(sql`NOW()`),
-  updated: timestamp("updated", { withTimezone: true, mode: "date" })
-    .notNull()
-    .default(sql`NOW()`)
-    .$onUpdate(() => sql`NOW()`)
+  created: timestamp("created", { withTimezone: true, mode: 'string' }).defaultNow(),
+  updated: timestamp("updated", { withTimezone: true, mode: 'string' }).defaultNow().$onUpdate(() => sql`NOW()`)
 });
 
 export const usersRelations = relations(users, ({ many }) => ({
