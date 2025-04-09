@@ -17,15 +17,18 @@ export type Schema = {
     status?: string;
     scheduled?: string;
     sent?: string;
-    created: string;
-    updated: string;
+    created: Date;
+    updated: Date;
   }
   users: {
     id: string;
     username: string;
     email: string;
-    created: Date;
-    updated: Date;
+    password: string;
+    passwordConfirm?: string;
+    active: boolean;
+    created: string;
+    updated: string;
   }
   posts: {
     id: string;

@@ -7,7 +7,6 @@ import { app } from './state.svelte';
 import dayjs from 'dayjs';
 
 
-
 export const api = new Client<Schema>(PUBLIC_API_URL);
 api.beforeSend(async ({ request }) => {
   app.loading = true;
@@ -21,7 +20,12 @@ api.afterSend(async ({ request, response, data }) => {
     throw new Error(data);
   }
   if (request.method === 'POST') {
-    alert({ message: 'Record saved', timeout: 3000 })
+    if (request.url.indexOf('/records') > 0) {
+      alert({ message: 'Record saved', timeout: 3000 })
+    }
+    if (request.url.indexOf('/auth-with-password') > 0) {
+      alert({ message: 'Auth success', timeout: 3000 })
+    }
   }
   await delay(500);
   app.loading = false;
@@ -61,9 +65,23 @@ export const delay = (ms: number): Promise<void> => {
   return new Promise(resolve => setTimeout(resolve, ms));
 };
 
-export const createId = (length = 21) => {
+export const createId = (length = 15) => {
   return init({ length })();
 };
+
+// autofocus.ts
+export function autofocus(node: HTMLElement) {
+  // Delay focus to ensure it's after DOM is ready
+  const timeout = setTimeout(() => {
+    node.focus();
+  });
+
+  return {
+    destroy() {
+      clearTimeout(timeout);
+    }
+  };
+}
 
 export function copyToClipboard(event: Event, text: string) {
   const button = event.currentTarget as HTMLButtonElement;

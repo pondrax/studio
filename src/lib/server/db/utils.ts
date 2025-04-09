@@ -4,11 +4,21 @@ import {
   text,
   timestamp,
 } from 'drizzle-orm/pg-core';
-import { createId } from '@paralleldrive/cuid2';
+import { init } from '@paralleldrive/cuid2';
 import { sql } from 'drizzle-orm';
 
-type ColumnDefinition = { field: string; type: string; notNull?: boolean };
+export const createId = (length = 15) => {
+  const cuid = init({ length });
+  return cuid();
+};
 
+type ColumnDefinition = {
+  field: string;
+  type: string;
+  notNull?: boolean;
+  unique?: boolean;
+  references?: string;
+};
 export function createPgTable<T extends ColumnDefinition>(
   tableName: string,
   columns: T[]
@@ -29,7 +39,7 @@ export function createPgTable<T extends ColumnDefinition>(
   }
 
   return pgTable(tableName, {
-    id: text('id').primaryKey().notNull().$default(() => createId()),
+    id: text('id').primaryKey().notNull().$defaultFn(() => createId()),
     ...pgColumns,
     created: timestamp("created", { withTimezone: true, mode: 'string' }).defaultNow(),
     updated: timestamp("updated", { withTimezone: true, mode: 'string' }).defaultNow().$onUpdate(() => sql`NOW()`)

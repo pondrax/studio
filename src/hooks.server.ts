@@ -1,7 +1,16 @@
 import { sequence } from '@sveltejs/kit/hooks';
-// import { i18n } from '$lib/i18n';
-import type { Handle } from '@sveltejs/kit';
 import * as auth from '$lib/server/auth.js';
+import type { Handle } from '@sveltejs/kit';
+import { paraglideMiddleware } from '$lib/paraglide/server';
+// import { HandleAuth } from '$lib/auth';
+
+const handleParaglide: Handle = ({ event, resolve }) =>
+  paraglideMiddleware(event.request, ({ request, locale }) => {
+    event.request = request;
+    return resolve(event, {
+      transformPageChunk: ({ html }) => html.replace('%paraglide.lang%', locale)
+    });
+  });
 
 const handleAuth: Handle = async ({ event, resolve }) => {
   const sessionToken = event.cookies.get(auth.sessionCookieName);
@@ -20,22 +29,7 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 
   event.locals.user = user;
   event.locals.session = session;
-
   return resolve(event);
 };
 
-
-import { paraglideMiddleware } from '$lib/paraglide/server';
-
-// creating a handle to use the paraglide middleware
-const paraglideHandle: Handle = ({ event, resolve }) =>
-  paraglideMiddleware(event.request, ({ request: localizedRequest, locale }) => {
-    event.request = localizedRequest;
-    return resolve(event, {
-      transformPageChunk: ({ html }) => {
-        return html.replace('%lang%', locale);
-      }
-    });
-  });
-
-export const handle: Handle = sequence(handleAuth, paraglideHandle);
+export const handle: Handle = sequence(handleParaglide, handleAuth);

@@ -1,0 +1,102 @@
+{
+  "users": [
+    {
+      "field": "username",
+      "type": "text",
+      "notNull": true
+    },
+    {
+      "field": "email",
+      "type": "text",
+      "notNull": true
+    },
+    {
+      "field": "passwword",
+      "type": "text",
+      "notNull": true
+    }
+  ],
+  "posts": {
+    "title": {
+      "type": "text",
+      "notNull": true
+    },
+    "slug": {
+      "type": "text",
+      "notNull": true,
+      "unique": true
+    },
+    "content": {
+      "type": "text",
+      "notNull": true
+    },
+    "userId": {
+      "type": "text",
+      "notNull": true,
+      "references": "users.id"
+    }
+  },
+  "comments": {
+    "content": {
+      "type": "text",
+      "notNull": true
+    },
+    "file": {
+      "type": "text"
+    },
+    "userId": {
+      "type": "text",
+      "references": "users.id"
+    },
+    "postId": {
+      "type": "text",
+      "references": "posts.id"
+    }
+  },
+  "relations": {
+    "users": {
+      "posts": {
+        "type": "many",
+        "target": "posts"
+      }
+    },
+    "posts": {
+      "users": {
+        "type": "one",
+        "target": "users",
+        "fields": [
+          "userId"
+        ],
+        "references": [
+          "id"
+        ]
+      },
+      "comments": {
+        "type": "many",
+        "target": "comments"
+      }
+    },
+    "comments": {
+      "posts": {
+        "type": "one",
+        "target": "posts",
+        "fields": [
+          "postId"
+        ],
+        "references": [
+          "id"
+        ]
+      },
+      "users": {
+        "type": "one",
+        "target": "users",
+        "fields": [
+          "userId"
+        ],
+        "references": [
+          "id"
+        ]
+      }
+    }
+  }
+}

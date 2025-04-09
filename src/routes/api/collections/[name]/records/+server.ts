@@ -2,6 +2,7 @@ import { createId } from '$lib/app/index.js';
 import { db, logger, schema, sdynamic, t, type SQL } from '$lib/server/db';
 import { expandQuery, orderQuery } from '$lib/server/db/enhance.js';
 import { parseFilter } from '$lib/server/db/filter.js';
+import { hash } from '@node-rs/argon2';
 import { error, json } from "@sveltejs/kit";
 import { writeFile } from 'fs/promises'
 
@@ -28,7 +29,7 @@ export async function GET({ request, params, url: { searchParams } }) {
   // const filterQuery = undefined;
   // const x;
   // @ts-ignore
-  const items = db.query[collectionName].findMany({
+  let items = db.query[collectionName].findMany({
     // where: filterQuery,
     // where: ((table) => t.and(t.eq(table.id, table.email))),
     // columns: {
@@ -40,6 +41,18 @@ export async function GET({ request, params, url: { searchParams } }) {
     offset: (page - 1) * perPage,
   })
 
+
+  items = await items;
+
+  const hiddenFields = ['password', 'passwordConfirm'];
+  items = items.map((item: { [x: string]: any; }) => {
+    for (const field of hiddenFields) {
+      if (item[field]) {
+        delete item[field];
+      }
+    }
+    return item
+  });
   // const items = db.query['users'].findMany();
   // const items = db.select()
   //   .from(sdynamic.users)
@@ -58,11 +71,10 @@ export async function GET({ request, params, url: { searchParams } }) {
     perPage,
     totalPages,
     totalItems,
-    items: await items,
+    items: items,
     parsed
   });
 }
-
 
 export async function POST({ params, request }) {
   const collectionName = params.name as keyof typeof schema;
@@ -74,10 +86,17 @@ export async function POST({ params, request }) {
       const [itemId, fieldName] = key.split(':');
       if (!records[itemId]) records[itemId] = {};
 
-      if (value instanceof Blob) {
+      if (fieldName === 'password') {
+        records[itemId][fieldName] = await hash(String(value), {
+          memoryCost: 19456,
+          timeCost: 2,
+          outputLen: 32,
+          parallelism: 1
+        });
+      } else if (value instanceof Blob) {
         const arrayBuffer = await value.arrayBuffer();
         const filename = `${fieldName}-${createId()}`;
-        await writeFile(`static/uploads/${params.name}/${filename}`, Buffer.from(arrayBuffer));
+        await writeFile(`static/uploads/${collectionName}/${filename}`, Buffer.from(arrayBuffer));
         records[itemId][fieldName] = filename;
       } else {
         records[itemId][fieldName] = value;
@@ -87,21 +106,22 @@ export async function POST({ params, request }) {
     for (const [itemId, data] of Object.entries(records)) {
       // @ts-ignore
       const exists = await db.$count(schema[collectionName], t.eq(schema[collectionName].id, itemId));
+
       if (exists) {
         // @ts-ignore
         await db.update(schema[collectionName]).set(data).where(t.eq(schema[collectionName].id, itemId));
       } else {
-        //@ts-ignore
-        await db.insert(schema[collectionName]).values(data)
+        // @ts-ignore
+        await db.insert(schema[collectionName]).values({ id: itemId, ...data });
       }
     }
+
     logger({ level: 0, data: records, request });
     return json({ success: true, data: records });
+
   } catch (err) {
-    logger({ level: 4, data: err, request })
-    return error(400, {
-      message: 'Bad request ' + err,
-    })
+    logger({ level: 4, data: err, request });
+    return error(400, { message: 'Bad request: ' + String(err) });
   }
 }
 

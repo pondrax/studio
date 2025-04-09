@@ -5,7 +5,7 @@ import * as core from './schema/core'
 import * as app from './schema/app'
 import * as orm from 'drizzle-orm';
 import { createPgTable } from './utils';
-
+import schemaJson from './_schema.json'
 export type { SQL } from 'drizzle-orm'
 
 if (!env.DATABASE_URL) throw new Error('DATABASE_URL is not set');
@@ -17,13 +17,15 @@ export const schema = {
   ...core,
   ...app
 }
+
+
 export const sdynamic = {
   ...core,
   users: createPgTable('users', [
     { field: 'username', type: 'text', notNull: true },
     { field: 'email', type: 'text', notNull: true },
     { field: 'password', type: 'text', notNull: true },
-  ] as const),
+  ]),
   posts: createPgTable('posts', [
     { field: 'title', type: 'text', notNull: true },
     { field: 'slug', type: 'text', notNull: true },
@@ -33,6 +35,31 @@ export const sdynamic = {
     { field: 'content', type: 'text', notNull: true },
   ] as const)
 }
+
+sdynamic.users
+
+// export const sdynamic = {
+//   ...core,
+//   ...Object.fromEntries(
+//     Object.entries(schemaJson).map(([key, value]) => [key, createPgTable(key, value)])
+//   )
+// // };
+// export const sdynamic = {
+//   ...core,
+//   users: createPgTable('users', [
+//     { field: 'username', type: 'text', notNull: true },
+//     { field: 'email', type: 'text', notNull: true },
+//     { field: 'password', type: 'text', notNull: true },
+//   ] as const),
+//   posts: createPgTable('posts', [
+//     { field: 'title', type: 'text', notNull: true },
+//     { field: 'slug', type: 'text', notNull: true },
+//     { field: 'content', type: 'text', notNull: true },
+//   ] as const),
+//   comments: createPgTable('comments', [
+//     { field: 'content', type: 'text', notNull: true },
+//   ] as const)
+// }
 export const admin = drizzle({
   client,
   schema: core

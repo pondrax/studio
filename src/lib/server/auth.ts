@@ -22,7 +22,7 @@ export async function createSession(token: string, userId: string) {
     userId,
     expired: new Date(Date.now() + DAY_IN_MS * 30)
   };
-  await db.insert(table.session).values(session);
+  await db.insert(table._session).values(session);
   return session;
 }
 

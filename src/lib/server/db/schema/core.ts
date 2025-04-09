@@ -1,19 +1,15 @@
-import { init } from "@paralleldrive/cuid2";
+import { createId } from "../utils";
 import { sql } from "drizzle-orm";
 import { pgTable, serial, text, integer, timestamp, json, boolean, pgEnum } from 'drizzle-orm/pg-core';
 
-export const createId = (length = 21) => {
-  const cuid = init({ length });
-  return cuid();
-};
-export const _admins = pgTable('_admins', {
+export const _admins = pgTable('_superuser', {
   id: text('id').primaryKey().notNull().$default(() => createId(15)),
   avatar: integer('avatar'),
   email: text('email'),
   tokenKey: text('tokenKey'),
   password: text('password').notNull(),
   created: timestamp("created", { withTimezone: true, mode: 'string' }).defaultNow(),
-  updated: timestamp("updated", { withTimezone: true, mode: 'string' }).defaultNow().$onUpdate(() => new Date())
+  updated: timestamp("updated", { withTimezone: true, mode: 'string' }).defaultNow().$onUpdate(() => sql`NOW()`)
 });
 
 export const _collections = pgTable('_collections', {
@@ -28,8 +24,9 @@ export const _collections = pgTable('_collections', {
   createRule: text('createRule'),
   updateRule: text('updateRule'),
   deleteRule: text('deleteRule'),
+  option: json('option'),
   created: timestamp("created", { withTimezone: true, mode: 'string' }).defaultNow(),
-  updated: timestamp("updated", { withTimezone: true, mode: 'string' }).defaultNow().$onUpdate(() => new Date())
+  updated: timestamp("updated", { withTimezone: true, mode: 'string' }).defaultNow().$onUpdate(() => sql`NOW()`)
 });
 
 export const _params = pgTable('_params', {
@@ -37,7 +34,7 @@ export const _params = pgTable('_params', {
   key: text('key'),
   value: json('value'),
   created: timestamp("created", { withTimezone: true, mode: 'string' }).defaultNow(),
-  updated: timestamp("updated", { withTimezone: true, mode: 'string' }).defaultNow().$onUpdate(() => new Date())
+  updated: timestamp("updated", { withTimezone: true, mode: 'string' }).defaultNow().$onUpdate(() => sql`NOW()`)
 });
 
 export const _externalAuths = pgTable('_externalAuths', {
@@ -47,7 +44,7 @@ export const _externalAuths = pgTable('_externalAuths', {
   provider: text('provider'),
   providerId: text('providerId'),
   created: timestamp("created", { withTimezone: true, mode: 'string' }).defaultNow(),
-  updated: timestamp("updated", { withTimezone: true, mode: 'string' }).defaultNow().$onUpdate(() => new Date())
+  updated: timestamp("updated", { withTimezone: true, mode: 'string' }).defaultNow().$onUpdate(() => sql`NOW()`)
 });
 
 export const _notificationType = pgEnum('notificationType', ['email', 'table']);
@@ -60,7 +57,7 @@ export const _notifications = pgTable('_notifications', {
   type: _notificationType('type').default('table'),
   status: _notificationStatus('status').default('pending'),
   created: timestamp("created", { withTimezone: true, mode: 'string' }).defaultNow(),
-  updated: timestamp("updated", { withTimezone: true, mode: 'string' }).defaultNow().$onUpdate(() => new Date())
+  updated: timestamp("updated", { withTimezone: true, mode: 'string' }).defaultNow().$onUpdate(() => sql`NOW()`)
 });
 
 export const _logs = pgTable('_logs', {
@@ -69,7 +66,7 @@ export const _logs = pgTable('_logs', {
   message: text('message'),
   data: json('data'),
   created: timestamp("created", { withTimezone: true, mode: 'string' }).defaultNow(),
-  updated: timestamp("updated", { withTimezone: true, mode: 'string' }).defaultNow().$onUpdate(() => new Date())
+  updated: timestamp("updated", { withTimezone: true, mode: 'string' }).defaultNow().$onUpdate(() => sql`NOW()`)
 });
 
 export const _session = pgTable('_session', {
