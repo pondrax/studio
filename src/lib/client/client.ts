@@ -8,6 +8,7 @@ type PaginatedResponse<T> = {
 };
 
 export class Client<Schema extends Record<string, any>> {
+  public auth: { accessToken: string, model?: Record<string, any> } | undefined;
   private baseUrl: string;
   private beforeSendHook?: (context: { request: Request }) => Promise<Request> | Request;
   private afterSendHook?: (context: { request: Request; response: Response; data: any }) => Promise<any> | any;
@@ -119,18 +120,31 @@ export class Client<Schema extends Record<string, any>> {
 
   from<TableName extends keyof Schema>(tableName: TableName) {
     return {
-      authWithPassword: async (auth: { identity: string; password: string }) => {
-        const url = new URL(`${this.baseUrl}/api/collections/${String(tableName)}/auth-with-password`);
+      refreshToken: async () => {
+        const url = new URL(`${this.baseUrl}/api/collections/${String(tableName)}/refresh-token`);
         let request = new Request(url.toString(), {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(auth),
         });
         request = await this.executeBeforeSend(request);
         const response = await fetch(request);
         return this.executeAfterSend(request, response);
+
+      },
+      authWithPassword: async (auth: { identity: string; password: string }) => {
+        const url = new URL(`${this.baseUrl}/api/collections/${String(tableName)}/auth-with-password`);
+        let request = new Request(url.toString(), {
+          method: 'POST',
+          body: JSON.stringify(auth),
+        });
+        request = await this.executeBeforeSend(request);
+        const response = await fetch(request);
+        const clone = response.clone();
+        this.auth = await clone.json();
+        return this.executeAfterSend(request, response);
+      },
+      authWithOauth2: async (provider: string, params?: { redirectTo: string } & Record<string, any>) => {
+        const query = new URLSearchParams(params);
+        location.href = `${this.baseUrl}/api/collections/${String(tableName)}/auth-with-oauth2/${provider}?${query.toString()}`;
       },
       getList: async (params?: Record<string, any>): Promise<PaginatedResponse<Schema[TableName]>> => {
         const url = new URL(`${this.baseUrl}/api/collections/${String(tableName)}/records`);
@@ -141,10 +155,7 @@ export class Client<Schema extends Record<string, any>> {
         }
 
         let request = new Request(url.toString(), {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          method: 'GET'
         });
         request = await this.executeBeforeSend(request);
         const response = await fetch(request);

@@ -17,9 +17,12 @@ export class OAuth {
   private provider: OAuthProvider;
   private state: string;
 
-  constructor(provider: keyof Providers, config: OAuthConfig) {
+  constructor(provider: keyof Providers, config: OAuthConfig, params: Record<string, string> = {}) {
     this.state = createId(64);
-    config.redirectUri = `${config.redirectUri}?provider=${provider}&state=${this.state}`;
+    const query = new URLSearchParams(params);
+    query.append('provider', provider)
+    query.append('state', this.state);
+    config.redirectUri = `${config.redirectUri}?${query.toString()}`;
     this.provider = new providers[provider](config);
   }
 

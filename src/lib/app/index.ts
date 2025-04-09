@@ -5,7 +5,8 @@ import { Client } from "$lib/client/client";
 import { init } from "@paralleldrive/cuid2";
 import { app } from './state.svelte';
 import dayjs from 'dayjs';
-
+import utc from 'dayjs/plugin/utc';
+dayjs.extend(utc);
 
 export const api = new Client<Schema>(PUBLIC_API_URL);
 api.beforeSend(async ({ request }) => {

@@ -70,7 +70,7 @@ export const _logs = pgTable('_logs', {
 });
 
 export const _session = pgTable('_session', {
-  id: text('id').primaryKey().notNull().$default(() => createId(15)),
+  id: text('id').primaryKey().notNull().$default(() => createId(128)),
   userId: text('user_id').notNull(),
   table: text('table').notNull(),
   expired: timestamp('expired', { withTimezone: true, mode: 'string' }).notNull()

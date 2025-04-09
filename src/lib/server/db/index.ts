@@ -69,7 +69,7 @@ export const admin = drizzle({
 // console.log(app.users._.config)
 export const db = drizzle({
   client,
-  schema: sdynamic
+  schema
 });
 
 export const logger = async ({ level = 0, data, request }: { level: number, data: any, request: Request }) => {

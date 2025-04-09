@@ -17,8 +17,8 @@ export async function GET({ url, params, cookies }) {
       clientId: clientId,
       clientSecret: clientSecret,
       redirectUri: url.protocol + '//' + url.host + '/api/oauth2-redirect'
-    })
-    console.log(oauth)
+    }, { collectionName })
+    // console.log(oauth)
     const { state, url: oauthUrl } = oauth.getAuthUrl();
 
     cookies.set("oauth_state", state, {
