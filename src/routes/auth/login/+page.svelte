@@ -45,7 +45,7 @@
 				Masuk
 			</button>
 			<div class="divider my-0">Atau</div>
-			<button type="button" class="btn btn-primary" onclick={loginWithSSO}>
+			<button type="button" class="btn btn-neutral btn-soft" onclick={loginWithSSO}>
 				<img src="/favicon.png" alt="SSO" class="h-8" />
 				Masuk Dengan SSO
 			</button>

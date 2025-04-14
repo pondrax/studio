@@ -1,6 +1,8 @@
 import { error, json } from "@sveltejs/kit";
 import { OAuth, type Providers } from '$lib/server/auth/oauth.js'
 import { db, schema, t } from "$lib/server/db/index.js";
+import { Session } from "$lib/server/auth/session";
+import { d, createId } from "$lib/app";
 
 export async function GET({ cookies, url }) {
 
@@ -28,15 +30,52 @@ export async function GET({ cookies, url }) {
       clientSecret: clientSecret,
       redirectUri: url.protocol + '//' + url.host + '/api/oauth2-redirect'
     })
-    const token = await oauth.getAccessToken(code)
-    const user = await oauth.getUser(token)
+    const token = await oauth.getAccessToken(code);
+    const user = await oauth.getUser(token);
 
-    return new Response(JSON.stringify({
-      accessToken: token,
-      user: user
-    }));
+    //@ts-ignore
+    let existingUser = await db.query[collectionName].findFirst({
+      // @ts-ignore
+      where: t.eq(schema[collectionName].email, user.email)
+    });
 
-    // return redirect(302, oauthUrl.toString());
+    if (!existingUser) {
+      // @ts-ignore
+      existingUser = await db.insert(schema[collectionName])
+        .values({
+          username: user.email?.split('@')?.[0] + createId(8),
+          email: user.email,
+          password: '',
+        })
+        .returning();
+      //   throw error(400, { message: 'User not exists' });
+    }
+
+    const sessionId = await Session.create({
+      userId: existingUser.id,
+      table: collectionName,
+      cookies,
+      expired: d().add(7, 'days').toDate()
+    })
+    cookies.set('access_user', JSON.stringify(user), {
+      path: "/",
+      secure: true,
+      httpOnly: false,
+      maxAge: 60 * 10,
+      sameSite: "lax"
+    });
+
+    cookies.delete("oauth_state", {
+      path: "/",
+    });
+    // return json({ accessToken: token, user: user })
+    return new Response(null, {
+      status: 302,
+      headers: {
+        Location: '/main'
+      }
+    });
+
   } catch (e) {
     console.log(e)
     return error(500, { message: 'Internal Server Error' })

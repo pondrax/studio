@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { Modal, Toolbar } from '$lib/components';
-	import { app, api, d, autofocus, createId } from '$lib/app';
+	import { app, api, d, autofocus, createId, queryStringify } from '$lib/app';
 
 	type Collections = Awaited<ReturnType<typeof getCollections>>;
 	type Item = Collections['items'][number];
@@ -15,7 +14,7 @@
 		perPage: Number(page.url.searchParams.get('perPage')) || 50,
 		sort: page.url.searchParams.get('sort') || '-created',
 		filter: page.url.searchParams.get('filter') || '',
-		expand: page.url.searchParams.get('expand') || ''
+		expand: ''
 	});
 
 	type Forms = {
@@ -26,6 +25,10 @@
 	let forms: Forms = $state({
 		save: undefined,
 		del: undefined
+	});
+
+	let _form = $state({
+		confirmPassword: undefined
 	});
 
 	async function getCollections() {
@@ -55,11 +58,7 @@
 	}
 
 	$effect(() => {
-		const params = new URLSearchParams(Object.entries(query).map(([k, v]) => [k, v.toString()]));
-		goto(`?${params}`, { replaceState: true, noScroll: true, keepFocus: true });
-	});
-
-	$effect(() => {
+		queryStringify(query);
 		refresh();
 	});
 </script>
@@ -94,24 +93,27 @@
 					/>
 				</label>
 				<label class="label floating-label">
-					<span>Confirm Password</span>
+					<span>Konfirmasi Password</span>
 					<input
 						type="password"
 						class="input w-full"
 						placeholder="Confirm Password"
 						autocomplete="new-password"
-						bind:value={item.passwordConfirm}
+						bind:value={_form.confirmPassword}
 					/>
 				</label>
+				{#if item.password !== _form.confirmPassword}
+					<p class="text-error">Password tidak sama</p>
+				{/if}
 				<label class="fieldset-label">
-					<input type="checkbox" bind:checked={item.active} class="toggle" />
-					{item.active ? 'Active' : 'Inactive'}
+					<input type="checkbox" bind:checked={item.verified} class="toggle" />
+					{item.verified ? 'Verified' : 'Unverified'}
 				</label>
 			{/each}
 			<div>
 				<button type="submit" class="btn btn-secondary" disabled={app.loading}>
 					<iconify-icon icon="bx:save"></iconify-icon>
-					Save
+					Simpan
 				</button>
 			</div>
 		</form>
@@ -119,7 +121,7 @@
 </Modal>
 <Modal title="Delete Record" bind:data={forms.del}>
 	{#snippet children(items)}
-		<p>Do you want to remove this items ?</p>
+		<p>Apakah anda yakin menghapus data ini ?</p>
 		<div class="mt-5 max-h-100 overflow-auto">
 			{#each items as item (item.id)}
 				<p>
@@ -129,7 +131,7 @@
 			{/each}
 		</div>
 		<button class="btn btn-error mt-5" onclick={() => del(items)} disabled={app.loading}>
-			Delete
+			Hapus
 		</button>
 	{/snippet}
 </Modal>
@@ -142,9 +144,9 @@
 	<button
 		class="btn btn-sm btn-secondary"
 		aria-label="add"
-		onclick={() => (forms.save = { [createId()]: { active: true } as Item })}
+		onclick={() => (forms.save = { [createId()]: { verified: true } as Item })}
 	>
-		<iconify-icon icon="bx:plus" class="text-lg"></iconify-icon> Add
+		<iconify-icon icon="bx:plus" class="text-lg"></iconify-icon> Tambah
 	</button>
 	{#if selections.length > 0}
 		<button
@@ -153,7 +155,7 @@
 			onclick={() => (forms.del = selections)}
 			disabled={app.loading}
 		>
-			<iconify-icon icon="bx:trash" class="text-lg"></iconify-icon> Delete
+			<iconify-icon icon="bx:trash" class="text-lg"></iconify-icon> Hapus
 		</button>
 	{/if}
 </Toolbar>
@@ -165,7 +167,7 @@
 					<input
 						type="checkbox"
 						class="checkbox checkbox-sm"
-						checked={collections && selections.length === collections.items.length}
+						checked={selections.length > 0 && selections.length === collections?.items.length}
 						onchange={() => {
 							selections =
 								collections && selections.length < collections.items.length
@@ -177,11 +179,8 @@
 				<!-- <th>ID</th> -->
 				<th>Username</th>
 				<th>Email</th>
-				<th>Created</th>
-				<th>
-					Updated
-					<span class="text-base-content/50 font-light"> datetime </span>
-				</th>
+				<th>Dibuat</th>
+				<th>Diupdate</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -215,10 +214,10 @@
 						<td>
 							{item.email}
 						</td>
-						<td>
+						<td class="w-1 whitespace-nowrap">
 							{d(item.created).format('DD MMM YYYY HH:mm')}
 						</td>
-						<td>
+						<td class="w-1 whitespace-nowrap">
 							{d(item.updated).format('DD MMM YYYY HH:mm')}
 						</td>
 					</tr>

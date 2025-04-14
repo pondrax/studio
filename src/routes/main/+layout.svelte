@@ -3,30 +3,35 @@
 	import { app, api } from '$lib/app';
 
 	let { children } = $props();
-	type Collections = Awaited<ReturnType<typeof getCollection>>;
-	type Item = Collections['items'][number];
 
-	let collections: Collections | undefined = $state();
-
-	let query = $state({
-		page: Number(page.url.searchParams.get('page')) || 1,
-		perPage: Number(page.url.searchParams.get('perPage')) || 50,
-		sort: page.url.searchParams.get('sort') || '-created',
-		filter: page.url.searchParams.get('filter') || '',
-		expand: page.url.searchParams.get('expand') || ''
-	});
-
-	async function getCollection() {
-		const result = await api.from('users').getList(query);
-		return result;
+	async function init() {
+		const auth = api.auth;
+		console.log(auth);
 	}
+	// type Collections = Awaited<ReturnType<typeof getCollection>>;
+	// type Item = Collections['items'][number];
 
-	async function refresh() {
-		collections = await getCollection();
-	}
+	// let collections: Collections | undefined = $state();
+
+	// let query = $state({
+	// 	page: Number(page.url.searchParams.get('page')) || 1,
+	// 	perPage: Number(page.url.searchParams.get('perPage')) || 50,
+	// 	sort: page.url.searchParams.get('sort') || '-created',
+	// 	filter: page.url.searchParams.get('filter') || '',
+	// 	expand: page.url.searchParams.get('expand') || ''
+	// });
+
+	// async function getCollection() {
+	// 	const result = await api.from('users').getList(query);
+	// 	return result;
+	// }
+
+	// async function refresh() {
+	// 	collections = await getCollection();
+	// }
 
 	$effect(() => {
-		refresh();
+		init();
 	});
 </script>
 
@@ -62,17 +67,31 @@
 	</div>
 	<div class="drawer-side z-10">
 		<ul class="menu bg-base-200 text-base-content min-h-full w-64 p-2">
-			<li>
+			<!-- <li>
 				<a href="/main/">
 					<img src="/favicon.png" alt="favicon" class="h-7" />
 					Main App
 				</a>
-			</li>
+			</li> -->
 			<li>
+				<div class="my-3 flex flex-col justify-center bg-transparent!">
+					<img
+						src="/ava1.png"
+						alt="avatar"
+						class="bg-secondary ring-secondary h-25 w-25 rounded-full ring-2 ring-offset-2"
+					/>
+					<div class="-my-1">Username</div>
+					<div class="join join-horizontal">
+						<a href="/main/profile" class="btn btn-xs btn-secondary join-item">Profile</a>
+						<a href="/" class="btn btn-xs btn-error join-item">Logout</a>
+					</div>
+				</div>
+			</li>
+			<!-- <li>
 				<div class="my-2 flex w-full p-1">
 					<input class="input input-sm" placeholder="Search" />
 				</div>
-			</li>
+			</li> -->
 			<li>
 				<a href="/main/">
 					<iconify-icon icon="bx:bxs-dashboard"></iconify-icon>
@@ -85,7 +104,7 @@
 			</li>
 			<li>
 				<a href="/main/menu/agenda">
-					<iconify-icon icon="bx:user"></iconify-icon>
+					<iconify-icon icon="bx:book"></iconify-icon>
 					Agenda
 				</a>
 			</li>

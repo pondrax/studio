@@ -1,4 +1,4 @@
-
+import type { QuestionsSelect, QuestionsCategorySelect, UserSelect } from "$lib/server/db/schema/app";
 export type Schema = {
   _logs: {
     id: string;
@@ -20,7 +20,18 @@ export type Schema = {
     created: Date;
     updated: Date;
   }
-  users: {
+  users: UserSelect
+  // users: {
+  //   id: string;
+  //   username: string;
+  //   email: string;
+  //   password: string;
+  //   passwordConfirm?: string;
+  //   active: boolean;
+  //   created: string;
+  //   updated: string;
+  // }
+  applicants: {
     id: string;
     username: string;
     email: string;
@@ -37,5 +48,11 @@ export type Schema = {
     author: string;
     createdAt: Date;
     updatedAt: Date;
-  }
+  },
+  questions: QuestionsSelect & {
+    option: Record<string, string>;
+    answer: Record<string, string>;
+    expandCategory?: QuestionsCategorySelect
+  },
+  questionsCategory: QuestionsCategorySelect,
 }

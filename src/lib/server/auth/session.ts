@@ -35,8 +35,8 @@ export class Session {
     cookies.set('access_token', sessionId, {
       path: '/',
       httpOnly: true,
+      secure: true,
       sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
       maxAge: 60 * 60 * 24 * 7 // 1 week in seconds
     });
 

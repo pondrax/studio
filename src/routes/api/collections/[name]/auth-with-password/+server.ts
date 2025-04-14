@@ -50,6 +50,14 @@ export async function POST({ params, request, cookies }) {
 
     //@ts-ignore
     delete existingUser.password;
+
+    cookies.set('access_user', JSON.stringify(existingUser), {
+      path: '/',
+      secure: true,
+      httpOnly: true,
+      maxAge: 60 * 60 * 24 * 7,
+      sameSite: 'lax'
+    });
     return json({
       accessToken: sessionId,
       model: existingUser

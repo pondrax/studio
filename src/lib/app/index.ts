@@ -6,6 +6,7 @@ import { init } from "@paralleldrive/cuid2";
 import { app } from './state.svelte';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
+import { goto } from '$app/navigation';
 dayjs.extend(utc);
 
 export const api = new Client<Schema>(PUBLIC_API_URL);
@@ -32,7 +33,6 @@ api.afterSend(async ({ request, response, data }) => {
   app.loading = false;
   return data;
 })
-
 
 export const alert = ({ message, type = 'success', timeout = -1 }: Partial<Alert>) => {
   let timeoutId: ReturnType<typeof setTimeout>;
@@ -69,6 +69,12 @@ export const delay = (ms: number): Promise<void> => {
 export const createId = (length = 15) => {
   return init({ length })();
 };
+
+export function queryStringify(obj: Record<string, any>) {
+  const params = new URLSearchParams(Object.entries(obj).map(([k, v]) => [k, v.toString()]));
+  params.delete('expand');
+  goto(`?${params}`, { replaceState: true, noScroll: true, keepFocus: true });
+}
 
 // autofocus.ts
 export function autofocus(node: HTMLElement) {

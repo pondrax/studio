@@ -99,7 +99,11 @@ export async function POST({ params, request }) {
         await writeFile(`static/uploads/${collectionName}/${filename}`, Buffer.from(arrayBuffer));
         records[itemId][fieldName] = filename;
       } else {
-        records[itemId][fieldName] = value;
+        try {
+          records[itemId][fieldName] = JSON.parse(String(value));
+        } catch (e) {
+          records[itemId][fieldName] = value;
+        }
       }
     }
 

@@ -44,6 +44,15 @@ export class Client<Schema extends Record<string, any>> {
     }
     return data;
   }
+  buildUrl(path: string, params?: Record<string, any>): string {
+    const url = new URL(`${this.baseUrl}${path}`);
+    if (params) {
+      Object.entries(params).forEach(([key, value]) =>
+        url.searchParams.append(key, String(value))
+      );
+    }
+    return url.toString();
+  }
 
   logs() {
     return {
@@ -164,7 +173,11 @@ export class Client<Schema extends Record<string, any>> {
       save: async (records: Record<string, Schema[TableName]>) => {
         const forms = new FormData();
         for (const [itemId, data] of Object.entries(records)) {
-          for (const [key, value] of Object.entries(data)) {
+          for (let [key, value] of Object.entries(data)) {
+            // console.log(value)
+            if (value instanceof Object) {
+              value = JSON.stringify(value);
+            }
             forms.append(`${itemId}:${key}`, value as any);
           }
         }
