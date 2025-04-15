@@ -1,73 +1,84 @@
-import { createId } from "../utils";
-import { relations, sql } from "drizzle-orm";
-import { pgTable, text, timestamp, boolean, pgEnum, json } from "drizzle-orm/pg-core";
+import { id, created, updated } from "../utils";
+import { relations } from "drizzle-orm";
+import { pgTable, text, boolean, pgEnum, json } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
-  id: text("id")
-    .primaryKey()
-    .notNull()
-    .$default(() => createId(15)),
+  id: id(),
   email: text("email").notNull().unique(),
   verified: boolean("verified"),
   username: text("username").notNull().unique(),
-  password: text("password").notNull(),
+  password: text("password"),
   avatar: text("avatar"),
-  created: timestamp("created", { withTimezone: true, mode: 'string' }).defaultNow(),
-  updated: timestamp("updated", { withTimezone: true, mode: 'string' }).defaultNow().$onUpdate(() => sql`NOW()`)
+  role_id: text("role_id").notNull().references(() => roles.id),
+  company_id: text("company_id").notNull().references(() => companies.id),
+  created,
+  updated,
 });
 
-const applicants = pgTable("applicants", {
-  id: text("id")
-    .primaryKey()
-    .notNull()
-    .$default(() => createId(15)),
+export const userRelations = relations(users, ({ one }) => ({
+  role: one(roles, { fields: [users.role_id], references: [roles.id] }),
+  company: one(companies, { fields: [users.company_id], references: [companies.id] }),
+}));
+
+export const roles = pgTable("roles", {
+  id: id(),
+  name: text("name").notNull().unique(),
+  description: text("description"),
+  permissions: json("permissions").default([]),
+  active: boolean("active").default(true),
+  created,
+  updated,
+});
+
+export const companies = pgTable("companies", {
+  id: id(),
+  name: text("name").notNull().unique(),
+  abbrv: text("abbrv"),
+  active: boolean('active').default(true),
+  created,
+  updated,
+});
+
+export const applicants = pgTable("applicants", {
+  id: id(),
   email: text("email").notNull().unique(),
   verified: boolean("verified"),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
-  created: timestamp("created", { withTimezone: true, mode: 'string' }).defaultNow(),
-  updated: timestamp("updated", { withTimezone: true, mode: 'string' }).defaultNow().$onUpdate(() => sql`NOW()`)
+  created,
+  updated,
 });
 
 export const posts = pgTable("posts", {
-  id: text("id")
-    .primaryKey()
-    .notNull()
-    .$default(() => createId(15)),
+  id: id(),
   title: text("title").notNull(),
   slug: text("slug").notNull().unique(),
   content: text("content").notNull(),
   media: text("media").notNull(),
-  userId: text("user_id").notNull().references(() => users.id),
-  created: timestamp("created", { withTimezone: true, mode: 'string' }).defaultNow(),
-  updated: timestamp("updated", { withTimezone: true, mode: 'string' }).defaultNow().$onUpdate(() => sql`NOW()`)
+  user_id: text("user_id").references(() => users.id),
+  created,
+  updated,
 });
 
 export const pages = pgTable("pages", {
-  id: text("id")
-    .primaryKey()
-    .notNull()
-    .$default(() => createId(15)),
+  id: id(),
   title: text("title").notNull(),
   slug: text("slug").notNull().unique(),
   content: text("content").notNull(),
   media: text("media").notNull(),
-  userId: text("user_id").notNull().references(() => users.id),
-  created: timestamp("created", { withTimezone: true, mode: 'string' }).defaultNow(),
-  updated: timestamp("updated", { withTimezone: true, mode: 'string' }).defaultNow().$onUpdate(() => sql`NOW()`)
+  user_id: text("user_id").references(() => users.id),
+  created,
+  updated,
 });
 
 export const comments = pgTable("comments", {
-  id: text("id")
-    .primaryKey()
-    .notNull()
-    .$default(() => createId(15)),
+  id: id(),
   content: text("content").notNull(),
   file: text("file"),
-  userId: text("user_id").references(() => users.id),
-  postId: text("post_id").references(() => posts.id),
-  created: timestamp("created", { withTimezone: true, mode: 'string' }).defaultNow(),
-  updated: timestamp("updated", { withTimezone: true, mode: 'string' }).defaultNow().$onUpdate(() => sql`NOW()`)
+  user_id: text("user_id").references(() => users.id),
+  post_id: text("post_id").references(() => posts.id),
+  created,
+  updated,
 });
 
 export const usersRelations = relations(users, ({ many }) => ({
@@ -76,7 +87,7 @@ export const usersRelations = relations(users, ({ many }) => ({
 
 export const postsRelations = relations(posts, ({ many, one }) => ({
   users: one(users, {
-    fields: [posts.userId],
+    fields: [posts.user_id],
     references: [users.id],
   }),
   comments: many(comments),
@@ -84,11 +95,11 @@ export const postsRelations = relations(posts, ({ many, one }) => ({
 
 export const commentsRelations = relations(comments, ({ one }) => ({
   posts: one(posts, {
-    fields: [comments.postId],
+    fields: [comments.post_id],
     references: [posts.id],
   }),
   users: one(users, {
-    fields: [comments.userId],
+    fields: [comments.user_id],
     references: [users.id],
   }),
 }));
@@ -96,43 +107,51 @@ export const commentsRelations = relations(comments, ({ one }) => ({
 
 
 
-export const questionsCategoryStatus = pgEnum('status', ['active', 'inactive']);
 export const questionsCategory = pgTable("questionsCategory", {
-  id: text("id")
-    .primaryKey()
-    .notNull()
-    .$default(() => createId(15)),
+  id: id(),
   name: text("name").notNull(),
   description: text("description").unique(),
-  status: questionsCategoryStatus('status').default('active'),
+  status: boolean('status').default(true),
   protected: boolean("protected").default(false),
-  created: timestamp("created", { withTimezone: true, mode: 'string' }).defaultNow(),
-  updated: timestamp("updated", { withTimezone: true, mode: 'string' }).defaultNow().$onUpdate(() => sql`NOW()`)
+  created,
+  updated,
 });
 export const questions = pgTable("questions", {
-  id: text("id")
-    .primaryKey()
-    .notNull()
-    .$default(() => createId(15)),
+  id: id(),
   question: text("question").notNull(),
-  option: json("option"),
+  options: json("options"),
   answer: json("answer"),
-  category: text("category").notNull().references(() => questionsCategory.id),
-  created: timestamp("created", { withTimezone: true, mode: 'string' }).defaultNow(),
-  updated: timestamp("updated", { withTimezone: true, mode: 'string' }).defaultNow().$onUpdate(() => sql`NOW()`)
+  category_id: text("category_id").notNull().references(() => questionsCategory.id),
+  created,
+  updated,
 });
 
 export const questionsRelations = relations(questions, ({ many, one }) => ({
-  expandCategory: one(questionsCategory, { fields: [questions.category], references: [questionsCategory.id] }),
+  category: one(questionsCategory, { fields: [questions.category_id], references: [questionsCategory.id] }),
 }));
 
-export type User = typeof users.$inferSelect;
-export type Post = typeof posts.$inferSelect;
-export type Comment = typeof comments.$inferSelect;
-export type UserSelect = typeof users.$inferSelect;
-export type QuestionsSelect = typeof questions.$inferSelect;
-export type QuestionsCategorySelect = typeof questionsCategory.$inferSelect;
 
-export {
-  applicants
+export const vacancies = pgTable("vacancies", {
+  id: id(),
+  title: text("title").notNull(),
+  description: text("description"),
+  media: text("media"),
+  category: text("category").notNull(),
+  created,
+  updated,
+});
+
+
+
+export type AppSchema = {
+  users: typeof users.$inferSelect;
+  applicants: typeof applicants.$inferSelect;
+  roles: typeof roles.$inferSelect;
+  companies: typeof companies.$inferSelect;
+  posts: typeof posts.$inferSelect;
+  pages: typeof pages.$inferSelect;
+  comments: typeof comments.$inferSelect;
+  questions: typeof questions.$inferSelect;
+  questionsCategory: typeof questionsCategory.$inferSelect;
+  vacancies: typeof vacancies.$inferSelect;
 }

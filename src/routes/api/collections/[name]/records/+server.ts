@@ -4,7 +4,8 @@ import { expandQuery, orderQuery } from '$lib/server/db/enhance.js';
 import { parseFilter } from '$lib/server/db/filter.js';
 import { hash } from '@node-rs/argon2';
 import { error, json } from "@sveltejs/kit";
-import { writeFile } from 'fs/promises'
+import { writeFile } from 'fs/promises';
+import { createInsertSchema } from 'drizzle-zod';
 
 export async function GET({ request, params, url: { searchParams } }) {
 
@@ -99,10 +100,12 @@ export async function POST({ params, request }) {
         await writeFile(`static/uploads/${collectionName}/${filename}`, Buffer.from(arrayBuffer));
         records[itemId][fieldName] = filename;
       } else {
-        try {
-          records[itemId][fieldName] = JSON.parse(String(value));
-        } catch (e) {
-          records[itemId][fieldName] = value;
+        if (!['created', 'updated'].includes(fieldName)) {
+          try {
+            records[itemId][fieldName] = JSON.parse(String(value));
+          } catch (e) {
+            records[itemId][fieldName] = value;
+          }
         }
       }
     }
@@ -116,7 +119,10 @@ export async function POST({ params, request }) {
         await db.update(schema[collectionName]).set(data).where(t.eq(schema[collectionName].id, itemId));
       } else {
         // @ts-ignore
-        await db.insert(schema[collectionName]).values({ id: itemId, ...data });
+        const insert = createInsertSchema(schema[collectionName]);
+        const dataSchema = insert.parse(data);
+        // @ts-ignore
+        await db.insert(schema[collectionName]).values({ id: itemId, ...dataSchema });
       }
     }
 
@@ -125,7 +131,11 @@ export async function POST({ params, request }) {
 
   } catch (err) {
     logger({ level: 4, data: err, request });
-    return error(400, { message: 'Bad request: ' + String(err) });
+    return error(400, {
+      message: 'Bad request',
+      // @ts-ignore
+      error: err
+    });
   }
 }
 
@@ -144,7 +154,9 @@ export async function DELETE({ params, request }) {
   } catch (err) {
     logger({ level: 4, data: err, request })
     return error(400, {
-      message: 'Bad request ' + err,
-    })
+      message: 'Bad request',
+      // @ts-ignore
+      error: err
+    });
   }
 }

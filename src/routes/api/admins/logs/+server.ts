@@ -56,7 +56,9 @@ export async function DELETE({ request }) {
     })
   } catch (err) {
     return error(400, {
-      message: 'Bad request ' + err,
-    })
+      message: 'Bad request',
+      // @ts-ignore
+      error: err
+    });
   }
 }

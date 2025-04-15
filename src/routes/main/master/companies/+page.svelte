@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { Modal, Select, Toolbar } from '$lib/components';
+	import { Modal, Toolbar, Select } from '$lib/components';
 	import { app, api, d, autofocus, createId, queryStringify } from '$lib/app';
 
 	type Collections = Awaited<ReturnType<typeof getCollections>>;
@@ -14,7 +14,7 @@
 		perPage: Number(page.url.searchParams.get('perPage')) || 50,
 		sort: page.url.searchParams.get('sort') || '-created',
 		filter: page.url.searchParams.get('filter') || '',
-		expand: 'category'
+		expand: ''
 	});
 
 	type Forms = {
@@ -27,20 +27,24 @@
 		del: undefined
 	});
 
+	let _form = $state({
+		confirmPassword: undefined
+	});
+
 	async function getCollections() {
-		const result = await api.from('questions').getList(query);
+		const result = await api.from('companies').getList(query);
 		return result;
 	}
 
 	async function save(data: NonNullable<Forms['save']>) {
-		const result = await api.from('questions').save(data);
+		const result = await api.from('companies').save(data);
 		forms.save = undefined;
 		refresh();
 	}
 
 	async function del(data: NonNullable<Forms['del']>) {
 		const ids = data.map((item) => item.id);
-		await api.from('questions').delete(ids);
+		await api.from('users').delete(ids);
 		forms.del = undefined;
 		refresh();
 	}
@@ -50,6 +54,9 @@
 	}
 	async function refresh() {
 		reset();
+		// for (const item in Object.keys(_form)) {
+		// 	_form[item as keyof typeof _form] = undefined;
+		// }
 		collections = await getCollections();
 	}
 
@@ -59,76 +66,32 @@
 	});
 </script>
 
-<Modal title="Simpan Data" bind:data={forms.save}>
+<Modal title="Simpan Data " bind:data={forms.save}>
 	{#snippet children(items)}
 		<form class="mt-5 flex flex-col gap-5" onsubmit={() => save(items)}>
 			{#each Object.values(items) as item}
-				<Select
-					bind:value={item.category_id}
-					placeholder="Kategori Pertanyaan"
-					labelField="name"
-					valueField="id"
-					fetch="/questionsCategory/records?perPage=100&sort=-created"
-				></Select>
 				<label class="label floating-label">
-					<span>Pertanyaan</span>
-					<textarea
-						class="textarea min-h-20 w-full"
-						placeholder="Pertanyaan"
-						bind:value={item.question}
-					></textarea>
+					<span>Nama</span>
+					<input
+						type="text"
+						class="input w-full"
+						placeholder="Nama"
+						bind:value={item.name}
+						use:autofocus
+						autocomplete="off"
+					/>
 				</label>
-				<div class="label floating-label -mb-5">
-					<span class="z-0!">Opsi</span>
-				</div>
-				<div>
-					<div class="border-base-content/20 min-h-30 w-full rounded-lg border p-2">
-						<div class="flex flex-col gap-1">
-							{#each Object.keys(item.options || {}) as id (id)}
-								<div class="join">
-									<input
-										type="text"
-										class="input join-item w-full"
-										placeholder="Opsi"
-										bind:value={item.options[id]}
-									/>
-									<input
-										type="text"
-										class="input join-item"
-										placeholder="Skor"
-										bind:value={item.answer[id]}
-									/>
-									<button
-										class="btn btn-soft join-item"
-										type="button"
-										aria-label="delete"
-										onclick={() => {
-											delete item.options[id];
-											delete item.answer[id];
-										}}
-									>
-										<iconify-icon icon="bx:trash"></iconify-icon>
-									</button>
-								</div>
-							{/each}
+				<label class="label floating-label">
+					<span>Abbrv</span>
+					<input type="text" class="input w-full" placeholder="Abbrv" bind:value={item.abbrv} />
+				</label>
 
-							<button
-								class="btn btn-soft"
-								type="button"
-								aria-label="add"
-								onclick={() => {
-									const id = createId();
-									item.options[id] = 'Opsi ' + (Object.keys(item.options || {}).length + 1);
-									item.answer[id] = '';
-								}}
-							>
-								<iconify-icon icon="bx:plus"></iconify-icon>
-							</button>
-						</div>
-					</div>
-				</div>
+				<label class="fieldset-label">
+					<input type="checkbox" bind:checked={item.active} class="toggle" />
+					{item.active ? 'Active' : 'Inactive'}
+				</label>
 			{/each}
-			<div class="mt-2">
+			<div>
 				<button type="submit" class="btn btn-secondary" disabled={app.loading}>
 					<iconify-icon icon="bx:save"></iconify-icon>
 					Simpan
@@ -144,7 +107,7 @@
 			{#each items as item (item.id)}
 				<p>
 					<span class="badge badge-sm badge-secondary font-mono">{item.id}</span>
-					{item.question}
+					{item.name}
 				</p>
 			{/each}
 		</div>
@@ -155,25 +118,14 @@
 </Modal>
 
 <div class="flex flex-wrap items-center gap-2 px-3">
-	<h1 class="mt-1 ml-12 text-xl capitalize">Daftar Pertanyaan</h1>
+	<h1 class="mt-1 ml-12 text-xl capitalize">Daftar Divisi / Company</h1>
 </div>
 
 <Toolbar bind:query {collections} {refresh}>
 	<button
 		class="btn btn-sm btn-secondary"
 		aria-label="add"
-		onclick={() => {
-			let options: Record<string, string> = {};
-			let answer: Record<string, any> = {};
-			Array.from({ length: 5 }).forEach((_, i) => {
-				const id = createId();
-				options[id] = 'Opsi ' + (i + 1);
-				answer[id] = 0;
-			});
-			forms.save = {
-				[createId()]: { options, answer } as Item
-			};
-		}}
+		onclick={() => (forms.save = { [createId()]: { active: true } as Item })}
 	>
 		<iconify-icon icon="bx:plus" class="text-lg"></iconify-icon> Tambah
 	</button>
@@ -192,7 +144,7 @@
 	<table class="table-sm table-pin-rows table-pin-cols table">
 		<thead>
 			<tr>
-				<th class=" sticky z-99 w-1">
+				<th class="sticky z-1 w-1">
 					<input
 						type="checkbox"
 						class="checkbox checkbox-sm"
@@ -206,9 +158,9 @@
 					/>
 				</th>
 				<!-- <th>ID</th> -->
-				<th>Pertanyaan</th>
-				<th>Opsi</th>
-				<th>Kategori</th>
+				<th>Nama Divisi</th>
+				<th>Abbrv</th>
+				<th>Status</th>
 				<th>Dibuat</th>
 				<th>Diupdate</th>
 			</tr>
@@ -218,7 +170,7 @@
 				{@const items = collections.items}
 				{#each collections.items || [] as item (item.id)}
 					<tr>
-						<td class="sticky z-1">
+						<th class="sticky z-1">
 							<div class="flex items-center gap-2">
 								<input
 									type="checkbox"
@@ -229,35 +181,27 @@
 								<button
 									class="btn btn-xs btn-soft"
 									aria-label="edit"
-									onclick={() => {
-										forms.save = {
-											[item.id]: {
-												...item
-											}
-										};
-									}}
+									onclick={() => (forms.save = { [item.id]: { ...item } })}
 								>
 									<iconify-icon icon="bx:pencil"></iconify-icon>
 								</button>
 							</div>
+						</th>
+						<!-- <td>
+							{item.id}
+						</td> -->
+						<td>
+							{item.name}
 						</td>
 						<td>
-							<span class="font-bold">{item.question}</span>
+							{item.abbrv}
 						</td>
 						<td>
-							<div class="flex flex-col gap-1">
-								{#each Object.keys(item.options || {}) as id (id)}
-									<div class="flex gap-2">
-										<div class="badge badge-sm badge-primary whitespace-nowrap">
-											{item.answer[id]}
-										</div>
-										<div>{item.options[id]}</div>
-									</div>
-								{/each}
-							</div>
-						</td>
-						<td class="w-1 whitespace-nowrap">
-							<span class="badge badge-sm badge-secondary">{item.category?.name}</span>
+							{#if item.active}
+								<span class="badge badge-sm badge-primary"> Aktif </span>
+							{:else}
+								<span class="badge badge-sm badge-secondary"> Non Aktif </span>
+							{/if}
 						</td>
 						<td class="w-1 whitespace-nowrap">
 							{d(item.created).format('DD MMM YYYY HH:mm')}

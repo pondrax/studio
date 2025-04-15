@@ -162,7 +162,7 @@
 			</li>
 			<li class="mx-2"></li>
 			<li class="p-0">
-				<div class="menu-title py-0!">Manajemen Pertanyaan</div>
+				<div class="menu-title py-0!">Master Data</div>
 			</li>
 			<li>
 				<a href="/main/questions/categories">
@@ -184,6 +184,12 @@
 				<a href="/main/master/users">
 					<iconify-icon icon="bx:user-circle"></iconify-icon>
 					Pengguna
+				</a>
+			</li>
+			<li>
+				<a href="/main/master/companies">
+					<iconify-icon icon="bx:group"></iconify-icon>
+					Divisi
 				</a>
 			</li>
 			<li>

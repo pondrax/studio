@@ -40,7 +40,7 @@
 
 	async function del(data: NonNullable<Forms['del']>) {
 		const ids = data.map((item) => item.id);
-		await api.from('users').delete(ids);
+		await api.from('questionsCategory').delete(ids);
 		forms.del = undefined;
 		refresh();
 	}
@@ -138,7 +138,7 @@
 	{/if}
 </Toolbar>
 <div class="ml-2 overflow-x-auto">
-	<table class="table-xs table-pin-rows table-pin-cols table">
+	<table class="table-sm table-pin-rows table-pin-cols table">
 		<thead>
 			<tr>
 				<th class="sticky z-1 w-1">

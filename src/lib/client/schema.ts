@@ -1,5 +1,5 @@
-import type { QuestionsSelect, QuestionsCategorySelect, UserSelect } from "$lib/server/db/schema/app";
-export type Schema = {
+import type { AppSchema } from "$lib/server/db/schema/app";
+export type Schema = AppSchema & {
   _logs: {
     id: string;
     level: number;
@@ -20,39 +20,39 @@ export type Schema = {
     created: Date;
     updated: Date;
   }
-  users: UserSelect
-  // users: {
-  //   id: string;
-  //   username: string;
-  //   email: string;
-  //   password: string;
-  //   passwordConfirm?: string;
-  //   active: boolean;
-  //   created: string;
-  //   updated: string;
-  // }
-  applicants: {
-    id: string;
-    username: string;
-    email: string;
-    password: string;
-    passwordConfirm?: string;
-    active: boolean;
-    created: string;
-    updated: string;
+  questions: {
+    options: Record<string, string>;
+    answer: Record<string, string | number>;
+    category: AppSchema["questionsCategory"];
   }
-  posts: {
-    id: string;
-    title: string;
-    content: string;
-    author: string;
-    createdAt: Date;
-    updatedAt: Date;
-  },
-  questions: QuestionsSelect & {
-    option: Record<string, string>;
-    answer: Record<string, string>;
-    expandCategory?: QuestionsCategorySelect
-  },
-  questionsCategory: QuestionsCategorySelect,
+  vacancies: {
+    media: FileList;
+  }
+  users: {
+    role?: AppSchema["roles"];
+    company?: AppSchema["companies"];
+  }
 }
+
+// type Expandables = {
+//   users: {
+//     role?: AppSchema["roles"];
+//     company?: AppSchema["companies"];
+//     posts?: AppSchema["posts"][];
+//   };
+//   posts: {
+//     users?: AppSchema["users"];
+//     comments?: AppSchema["comments"][];
+//   };
+//   comments: {
+//     posts?: AppSchema["posts"];
+//     users?: AppSchema["users"];
+//   };
+//   questions: {
+//     category?: AppSchema["questionsCategory"];
+//   };
+// };
+
+// export type RelatedType<TableName extends keyof AppSchema> = TableName extends keyof Expandables
+//   ? Expandables[TableName]
+//   : unknown;

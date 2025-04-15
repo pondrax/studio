@@ -121,7 +121,11 @@ export async function POST({ params, request }) {
 
   } catch (err) {
     logger({ level: 4, data: err, request });
-    return error(400, { message: 'Bad request: ' + String(err) });
+    return error(400, {
+      message: 'Bad request',
+      // @ts-ignore
+      error: err
+    });
   }
 }
 
@@ -140,7 +144,9 @@ export async function DELETE({ params, request }) {
   } catch (err) {
     logger({ level: 4, data: err, request })
     return error(400, {
-      message: 'Bad request ' + err,
-    })
+      message: 'Bad request',
+      // @ts-ignore
+      error: err
+    });
   }
 }

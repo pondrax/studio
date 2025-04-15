@@ -1,3 +1,5 @@
+
+
 type PaginatedResponse<T> = {
   elapsed: number;
   page: number;
@@ -8,6 +10,7 @@ type PaginatedResponse<T> = {
 };
 
 export class Client<Schema extends Record<string, any>> {
+
   public auth: { accessToken: string, model?: Record<string, any> } | undefined;
   private baseUrl: string;
   private beforeSendHook?: (context: { request: Request }) => Promise<Request> | Request;
@@ -161,6 +164,7 @@ export class Client<Schema extends Record<string, any>> {
           Object.entries(params).forEach(([key, value]) =>
             url.searchParams.append(key, String(value))
           );
+          console.log(params.expand)
         }
 
         let request = new Request(url.toString(), {

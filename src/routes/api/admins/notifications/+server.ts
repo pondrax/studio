@@ -76,9 +76,19 @@ export async function POST({ request }) {
         error: err
       },
     })
-    return error(400, {
-      message: 'Bad request ' + err,
+    return new Response(
+      JSON.stringify({
+        error: err
+      }), {
+      status: 400,
+      headers: {
+        'Content-Type': 'application/json'
+      }
     })
+    // return error(400, {
+    //   message: 'Bad request ' + err,
+    //   error: err
+    // })
   }
 }
 

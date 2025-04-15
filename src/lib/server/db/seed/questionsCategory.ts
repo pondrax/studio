@@ -1,0 +1,73 @@
+
+export default [
+  {
+    "id": "test_administrasi",
+    "name": "Tes Administrasi",
+    "description": "Tes Administrasi",
+    "active": true,
+    "protected": true,
+  },
+  {
+    "id": "test_tiu",
+    "name": "Tes Intelegensia Umum",
+    "description": "Tes Intelegensia Umum",
+    "active": true,
+    "protected": true,
+  },
+  {
+    "id": "test_twk",
+    "name": "Tes Wawasan Kebangsaan",
+    "description": "Tes Wawasan Kebangsaan",
+    "active": true,
+    "protected": true,
+  },
+  {
+    "id": "test_tkp",
+    "name": "Tes Karakteristik Pribadi",
+    "description": "Tes Karakteristik Pribadi",
+    "active": true,
+    "protected": true,
+  },
+  {
+    "id": "test_akhlak",
+    "name": "Tes Akhlak",
+    "description": "Tes Akhlak",
+    "active": true,
+    "protected": true,
+  },
+  {
+    "id": "test_inggris",
+    "name": "Tes Bahasa Inggris",
+    "description": "Tes Bahasa Inggris",
+    "active": true,
+    "protected": true,
+  },
+  {
+    "id": "test_skb",
+    "name": "Tes Kompetensi Bidang",
+    "description": "Tes Kompetensi Bidang",
+    "active": true,
+    "protected": true,
+  },
+  {
+    "id": "test_psikotest",
+    "name": "Tes Psikotes",
+    "description": "Tes Psikotes",
+    "active": true,
+    "protected": true,
+  },
+  {
+    "id": "test_wawancara",
+    "name": "Tes Wawancara",
+    "description": "Tes Wawancara",
+    "active": true,
+    "protected": true,
+  },
+  {
+    "id": "test_kesehatan",
+    "name": "Tes Kesehatan",
+    "description": "Tes Kesehatan Jasmani dan Rohani",
+    "active": true,
+    "protected": true,
+  },
+]

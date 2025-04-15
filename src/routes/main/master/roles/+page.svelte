@@ -29,19 +29,19 @@
 	});
 
 	async function getCollections() {
-		const result = await api.from('users').getList(query);
+		const result = await api.from('roles').getList(query);
 		return result;
 	}
 
 	async function save(data: NonNullable<Forms['save']>) {
-		const result = await api.from('users').save(data);
+		const result = await api.from('roles').save(data);
 		forms.save = undefined;
 		refresh();
 	}
 
 	async function del(data: NonNullable<Forms['del']>) {
 		const ids = data.map((item) => item.id);
-		await api.from('users').delete(ids);
+		await api.from('roles').delete(ids);
 		forms.del = undefined;
 		refresh();
 	}
@@ -64,43 +64,33 @@
 	});
 </script>
 
-<Modal title="Save Record" bind:data={forms.save}>
+<Modal title="Simpan Data" bind:data={forms.save}>
 	{#snippet children(items)}
 		<form class="mt-5 flex flex-col gap-5" onsubmit={() => save(items)}>
 			{#each Object.values(items) as item}
 				<label class="label floating-label">
-					<span>Username</span>
+					<span>Nama Akses</span>
 					<input
 						type="text"
 						class="input w-full"
-						placeholder="Username"
-						bind:value={item.username}
+						placeholder="Nama Hak Akses"
+						bind:value={item.name}
 						use:autofocus
 						autocomplete="off"
 					/>
 				</label>
 				<label class="label floating-label">
-					<span>Email</span>
-					<input type="email" class="input w-full" placeholder="Email" bind:value={item.email} />
+					<span>Deskripsi</span>
+					<textarea class="textarea w-full" placeholder="Deskripsi" bind:value={item.description}
+					></textarea>
 				</label>
 				<label class="label floating-label">
-					<span>Password</span>
+					<span>Akses</span>
 					<input
-						type="password"
+						type="text"
 						class="input w-full"
-						placeholder="Password"
-						autocomplete="new-password"
-						bind:value={item.password}
-					/>
-				</label>
-				<label class="label floating-label">
-					<span>Confirm Password</span>
-					<input
-						type="password"
-						class="input w-full"
-						placeholder="Confirm Password"
-						autocomplete="new-password"
-						bind:value={item.passwordConfirm}
+						placeholder="Akses"
+						bind:value={item.permissions}
 					/>
 				</label>
 				<label class="fieldset-label">
@@ -111,31 +101,31 @@
 			<div>
 				<button type="submit" class="btn btn-secondary" disabled={app.loading}>
 					<iconify-icon icon="bx:save"></iconify-icon>
-					Save
+					Simpan
 				</button>
 			</div>
 		</form>
 	{/snippet}
 </Modal>
-<Modal title="Delete Record" bind:data={forms.del}>
+<Modal title="Hapus Data" bind:data={forms.del}>
 	{#snippet children(items)}
-		<p>Do you want to remove this items ?</p>
+		<p>Apakah anda yakin menghapus data ini ?</p>
 		<div class="mt-5 max-h-100 overflow-auto">
 			{#each items as item (item.id)}
 				<p>
 					<span class="badge badge-sm badge-neutral font-mono">{item.id}</span>
-					{item.email}
+					{item.name}
 				</p>
 			{/each}
 		</div>
 		<button class="btn btn-error mt-5" onclick={() => del(items)} disabled={app.loading}>
-			Delete
+			Hapus
 		</button>
 	{/snippet}
 </Modal>
 
 <div class="flex flex-wrap items-center gap-2 px-3">
-	<h1 class="mt-1 ml-12 text-xl capitalize">Daftar Pengguna</h1>
+	<h1 class="mt-1 ml-12 text-xl capitalize">Hak Akses</h1>
 </div>
 
 <Toolbar bind:query {collections} {refresh}>
@@ -144,7 +134,7 @@
 		aria-label="add"
 		onclick={() => (forms.save = { [createId()]: { active: true } as Item })}
 	>
-		<iconify-icon icon="bx:plus" class="text-lg"></iconify-icon> Add
+		<iconify-icon icon="bx:plus" class="text-lg"></iconify-icon> Tambah
 	</button>
 	{#if selections.length > 0}
 		<button
@@ -153,12 +143,12 @@
 			onclick={() => (forms.del = selections)}
 			disabled={app.loading}
 		>
-			<iconify-icon icon="bx:trash" class="text-lg"></iconify-icon> Delete
+			<iconify-icon icon="bx:trash" class="text-lg"></iconify-icon> Hapus
 		</button>
 	{/if}
 </Toolbar>
 <div class="ml-2 overflow-x-auto">
-	<table class="table-xs table-pin-rows table-pin-cols table">
+	<table class="table-sm table-pin-rows table-pin-cols table">
 		<thead>
 			<tr>
 				<th class="sticky z-1 w-1">
@@ -174,14 +164,12 @@
 						}}
 					/>
 				</th>
-				<th>ID</th>
-				<th>Username</th>
-				<th>Email</th>
-				<th>Created</th>
-				<th>
-					Updated
-					<span class="text-base-content/50 font-light"> </span>
-				</th>
+				<!-- <th>ID</th> -->
+				<th>Nama</th>
+				<th>Deskripsi</th>
+				<th>Akses</th>
+				<th>Dibuat</th>
+				<th>Diupdate</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -206,19 +194,22 @@
 								</button>
 							</div>
 						</th>
-						<td>
+						<!-- <td>
 							{item.id}
+						</td> -->
+						<td>
+							{item.name}
 						</td>
 						<td>
-							{item.username}
+							{item.description}
 						</td>
 						<td>
-							{item.email}
+							{JSON.stringify(item.permissions)}
 						</td>
-						<td>
+						<td class="w-1 whitespace-nowrap">
 							{d(item.created).format('DD MMM YYYY HH:mm')}
 						</td>
-						<td>
+						<td class="w-1 whitespace-nowrap">
 							{d(item.updated).format('DD MMM YYYY HH:mm')}
 						</td>
 					</tr>

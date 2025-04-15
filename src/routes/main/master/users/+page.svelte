@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { Modal, Toolbar } from '$lib/components';
+	import { Modal, Toolbar, Select } from '$lib/components';
 	import { app, api, d, autofocus, createId, queryStringify } from '$lib/app';
 
 	type Collections = Awaited<ReturnType<typeof getCollections>>;
@@ -14,7 +14,7 @@
 		perPage: Number(page.url.searchParams.get('perPage')) || 50,
 		sort: page.url.searchParams.get('sort') || '-created',
 		filter: page.url.searchParams.get('filter') || '',
-		expand: ''
+		expand: 'role,company'
 	});
 
 	type Forms = {
@@ -54,6 +54,10 @@
 	}
 	async function refresh() {
 		reset();
+		// _form.confirmPassword = undefined;
+		for (const item of Object.keys(_form)) {
+			_form[item as keyof typeof _form] = undefined;
+		}
 		collections = await getCollections();
 	}
 
@@ -82,6 +86,23 @@
 					<span>Email</span>
 					<input type="email" class="input w-full" placeholder="Email" bind:value={item.email} />
 				</label>
+
+				<Select
+					bind:value={item.role_id}
+					placeholder="Hak Akses"
+					labelField="name"
+					valueField="id"
+					fetch="/roles/records?perPage=100&sort=name"
+				></Select>
+
+				<Select
+					bind:value={item.company_id}
+					placeholder="Divisi"
+					labelField="name"
+					valueField="id"
+					fetch="/companies/records?perPage=100&sort=name"
+				></Select>
+
 				<label class="label floating-label">
 					<span>Password</span>
 					<input
@@ -160,7 +181,7 @@
 	{/if}
 </Toolbar>
 <div class="ml-2 overflow-x-auto">
-	<table class="table-xs table-pin-rows table-pin-cols table">
+	<table class="table-sm table-pin-rows table-pin-cols table">
 		<thead>
 			<tr>
 				<th class="sticky z-1 w-1">
@@ -179,6 +200,8 @@
 				<!-- <th>ID</th> -->
 				<th>Username</th>
 				<th>Email</th>
+				<th>Hak Akses</th>
+				<th>Divisi</th>
 				<th>Dibuat</th>
 				<th>Diupdate</th>
 			</tr>
@@ -213,6 +236,12 @@
 						</td>
 						<td>
 							{item.email}
+						</td>
+						<td>
+							{item.role?.name}
+						</td>
+						<td>
+							{item.company?.name}
 						</td>
 						<td class="w-1 whitespace-nowrap">
 							{d(item.created).format('DD MMM YYYY HH:mm')}
