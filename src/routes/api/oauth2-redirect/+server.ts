@@ -46,13 +46,14 @@ export async function GET({ cookies, url }) {
           username: user.email?.split('@')?.[0] + createId(8),
           email: user.email,
           password: '',
+          verified: true
         })
         .returning();
       //   throw error(400, { message: 'User not exists' });
     }
 
     const sessionId = await Session.create({
-      userId: existingUser.id,
+      user_id: existingUser.id,
       table: collectionName,
       cookies,
       expired: d().add(7, 'days').toDate()

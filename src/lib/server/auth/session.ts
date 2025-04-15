@@ -4,12 +4,12 @@ import type { Cookies } from '@sveltejs/kit';
 
 export class Session {
   static async create({
-    userId,
+    user_id,
     table,
     cookies,
     expired,
   }: {
-    userId: string;
+    user_id: string;
     table: string;
     cookies: Cookies;
     expired?: string | Date;
@@ -23,7 +23,7 @@ export class Session {
 
     const session = await db.insert(schema._session).values({
       id: sessionId,
-      userId,
+      user_id,
       table,
       expired: expiration
     } as any).returning();

@@ -32,6 +32,13 @@ export type Schema = AppSchema & {
     role?: AppSchema["roles"];
     company?: AppSchema["companies"];
   }
+  posts: {
+    users?: AppSchema["users"];
+    comments?: AppSchema["comments"][];
+  }
+  pages: {
+    users?: AppSchema["users"];
+  }
 }
 
 // type Expandables = {

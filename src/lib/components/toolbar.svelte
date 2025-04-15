@@ -16,13 +16,26 @@
 		{@render children?.()}
 	</div>
 	<div class="flex flex-wrap items-center gap-2">
-		<div class="text-xs">
-			{collections?.elapsed}ms •
-			{((collections?.page || 1) - 1) * query.perPage + 1}
-			-
-			{(collections?.page || 1) * query.perPage}
-			of
-			{collections?.totalItems}
+		<div class="dropdown dropdown-end">
+			<button class="pointer-auto text-xs">
+				{collections?.elapsed}ms •
+				{((collections?.page || 1) - 1) * query.perPage + 1}
+				-
+				{(collections?.page || 1) * query.perPage}
+				of
+				{collections?.totalItems}
+			</button>
+			<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+			<ul
+				tabindex="0"
+				class="dropdown-content menu bg-base-100 rounded-box z-1 mt-1 w-30 p-0 shadow-sm"
+			>
+				{#each [10, 25, 50, 100] as item}
+					<li>
+						<button type="button" onclick={() => (query.perPage = item)}>{item}</button>
+					</li>
+				{/each}
+			</ul>
 		</div>
 		<div class="join">
 			<button

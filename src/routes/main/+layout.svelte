@@ -102,12 +102,12 @@
 			<li class="p-0">
 				<div class="menu-title py-0!">Menu Utama</div>
 			</li>
-			<li>
+			<!-- <li>
 				<a href="/main/menu/agenda">
 					<iconify-icon icon="bx:book"></iconify-icon>
 					Agenda
 				</a>
-			</li>
+			</li> -->
 			<li>
 				<a href="/main/menu/posts">
 					<iconify-icon icon="bx:book"></iconify-icon>
@@ -183,7 +183,13 @@
 			<li>
 				<a href="/main/master/users">
 					<iconify-icon icon="bx:user-circle"></iconify-icon>
-					Pengguna
+					Pengguna SSO
+				</a>
+			</li>
+			<li>
+				<a href="/main/master/applicants">
+					<iconify-icon icon="bx:user-circle"></iconify-icon>
+					Pengguna Eksternal
 				</a>
 			</li>
 			<li>

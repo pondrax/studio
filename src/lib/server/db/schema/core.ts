@@ -39,7 +39,7 @@ export const _params = pgTable('_params', {
 
 export const _externalAuths = pgTable('_externalAuths', {
   id: id(),
-  collectionId: text('collectionId').references(() => _collections.id),
+  collection_id: text('collection_id').references(() => _collections.id),
   recordId: text('recordId'),
   provider: text('provider'),
   providerId: text('providerId'),
@@ -71,7 +71,7 @@ export const _logs = pgTable('_logs', {
 
 export const _session = pgTable('_session', {
   id: text('id').primaryKey().notNull().$default(() => createId(128)),
-  userId: text('user_id').notNull(),
+  user_id: text('user_id').notNull(),
   table: text('table').notNull(),
   expired: timestamp('expired', { withTimezone: true, mode: 'string' }).notNull()
 });

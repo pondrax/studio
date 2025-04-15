@@ -11,7 +11,7 @@
 	let selections: Item[] = $state([]);
 	let query = $state({
 		page: Number(page.url.searchParams.get('page')) || 1,
-		perPage: Number(page.url.searchParams.get('perPage')) || 50,
+		perPage: Number(page.url.searchParams.get('perPage')) || 30,
 		sort: page.url.searchParams.get('sort') || '-created',
 		filter: page.url.searchParams.get('filter') || '',
 		expand: page.url.searchParams.get('expand') || ''

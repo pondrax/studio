@@ -6,6 +6,9 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+  server: {
+    allowedHosts: ['localhost', 'dev.dra.my.id', 'preview.dra.my.id']
+  },
   plugins: [
     sveltekit(),
     tailwindcss(),

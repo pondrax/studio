@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { Modal, Toolbar, Select } from '$lib/components';
+	import { Modal, Toolbar, Select, Mask } from '$lib/components';
 	import { app, api, d, autofocus, createId, queryStringify } from '$lib/app';
 
 	type Collections = Awaited<ReturnType<typeof getCollections>>;
@@ -11,7 +11,7 @@
 	let selections: Item[] = $state([]);
 	let query = $state({
 		page: Number(page.url.searchParams.get('page')) || 1,
-		perPage: Number(page.url.searchParams.get('perPage')) || 50,
+		perPage: Number(page.url.searchParams.get('perPage')) || 30,
 		sort: page.url.searchParams.get('sort') || '-created',
 		filter: page.url.searchParams.get('filter') || '',
 		expand: 'role,company'
@@ -25,6 +25,11 @@
 	let forms: Forms = $state({
 		save: undefined,
 		del: undefined
+	});
+
+	let mask = $state({
+		username: true,
+		email: true
 	});
 
 	let _form = $state({
@@ -123,7 +128,7 @@
 						bind:value={_form.confirmPassword}
 					/>
 				</label>
-				{#if item.password !== _form.confirmPassword}
+				{#if item.password && item.password !== _form.confirmPassword}
 					<p class="text-error">Password tidak sama</p>
 				{/if}
 				<label class="fieldset-label">
@@ -158,7 +163,7 @@
 </Modal>
 
 <div class="flex flex-wrap items-center gap-2 px-3">
-	<h1 class="mt-1 ml-12 text-xl capitalize">Daftar Pengguna</h1>
+	<h1 class="mt-1 ml-12 text-xl capitalize">Daftar Pengguna Internal / SSO</h1>
 </div>
 
 <Toolbar bind:query {collections} {refresh}>
@@ -168,6 +173,9 @@
 		onclick={() => (forms.save = { [createId()]: { verified: true } as Item })}
 	>
 		<iconify-icon icon="bx:plus" class="text-lg"></iconify-icon> Tambah
+	</button>
+	<button class="btn btn-sm btn-accent" aria-label="sync">
+		<iconify-icon icon="bx:sync" class="text-lg"></iconify-icon> Sinkronisasi Data
 	</button>
 	{#if selections.length > 0}
 		<button
@@ -211,7 +219,7 @@
 				{@const items = collections.items}
 				{#each collections.items || [] as item (item.id)}
 					<tr>
-						<th class="sticky z-1">
+						<td class="sticky z-1">
 							<div class="flex items-center gap-2">
 								<input
 									type="checkbox"
@@ -222,26 +230,40 @@
 								<button
 									class="btn btn-xs btn-soft"
 									aria-label="edit"
-									onclick={() => (forms.save = { [item.id]: item })}
+									onclick={() => (forms.save = { [item.id]: { ...item } })}
 								>
 									<iconify-icon icon="bx:pencil"></iconify-icon>
 								</button>
 							</div>
-						</th>
+						</td>
 						<!-- <td>
 							{item.id}
 						</td> -->
 						<td>
 							{item.username}
+							<!-- <Mask data={item.username} /> -->
 						</td>
 						<td>
-							{item.email}
+							<Mask data={item.email} />
 						</td>
 						<td>
 							{item.role?.name}
 						</td>
 						<td>
 							{item.company?.name}
+						</td>
+						<td class="w-1 whitespace-nowrap">
+							{#if item.verified}
+								<span class="badge badge-sm badge-success">
+									<iconify-icon icon="bx:check"></iconify-icon>
+									Verified
+								</span>
+							{:else}
+								<span class="badge badge-sm badge-warning">
+									<iconify-icon icon="bx:x"></iconify-icon>
+									Unverified
+								</span>
+							{/if}
 						</td>
 						<td class="w-1 whitespace-nowrap">
 							{d(item.created).format('DD MMM YYYY HH:mm')}

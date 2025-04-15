@@ -11,7 +11,7 @@
 	let selections: Item[] = $state([]);
 	let query = $state({
 		page: Number(page.url.searchParams.get('page')) || 1,
-		perPage: Number(page.url.searchParams.get('perPage')) || 50,
+		perPage: Number(page.url.searchParams.get('perPage')) || 30,
 		sort: page.url.searchParams.get('sort') || '-created',
 		filter: page.url.searchParams.get('filter') || '',
 		expand: 'category'
@@ -192,7 +192,7 @@
 	<table class="table-sm table-pin-rows table-pin-cols table">
 		<thead>
 			<tr>
-				<th class=" sticky z-99 w-1">
+				<th class="sticky z-1 w-1">
 					<input
 						type="checkbox"
 						class="checkbox checkbox-sm"

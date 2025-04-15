@@ -118,7 +118,16 @@ export function downloadCSV(input: Record<string, any>, name: string = 'data', s
   const csv =
     headers.join(separator) +
     '\n' +
-    rows.map(row => Object.values(row).join(separator)).join('\n');
+    rows.map(row => {
+      return Object.values(row)
+        .map(value => {
+          if (typeof value === 'object') {
+            return JSON.stringify(value);
+          }
+          return value;
+        })
+        .join(separator)
+    }).join('\n');
   const blob = new Blob([csv], { type: 'text/csv' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
