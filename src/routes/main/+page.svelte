@@ -87,7 +87,7 @@
 
 <main class="mt-10 space-y-6 overflow-auto p-3">
 	<!-- Welcome Section -->
-	<div class="card bg-white shadow">
+	<div class="card shadow-base-content/10 shadow">
 		<div class="card-body">
 			<h2 class="card-title">Hi, {auth.username} 👋</h2>
 			<p class="text-gray-500">Here’s what’s happening today.</p>
@@ -100,7 +100,7 @@
 	</div>
 
 	<!-- Stats Overview -->
-	<div class="stats grid w-full grid-cols-1 shadow md:grid-cols-3">
+	<div class="stats shadow-base-content/10 grid w-full grid-cols-1 shadow md:grid-cols-3">
 		<div class="stat">
 			<div class="stat-figure text-info text-7xl">
 				<iconify-icon icon="bx:briefcase-alt"></iconify-icon>
@@ -131,7 +131,7 @@
 
 	<div class="grid grid-cols-1 gap-5 md:grid-cols-3">
 		<!-- Agenda Section -->
-		<div class="card bg-white shadow">
+		<div class="card shadow-base-content/10 shadow">
 			<div class="card-body">
 				<h2 class="card-title">Lowongan Terkini</h2>
 				<ul class="list-disc space-y-2 pl-5">
@@ -144,7 +144,7 @@
 				</ul>
 			</div>
 		</div>
-		<div class="card bg-white shadow">
+		<div class="card shadow-base-content/10 shadow">
 			<div class="card-body">
 				<h2 class="card-title">Agenda</h2>
 				<ul class="list-disc space-y-2 pl-5">
@@ -159,7 +159,7 @@
 		</div>
 
 		<!-- Chart Card -->
-		<div class="card bg-white shadow">
+		<div class="card shadow-base-content/10 shadow">
 			<div class="card-body">
 				<h2 class="card-title">Statistik Ujian</h2>
 				<div>
@@ -170,13 +170,15 @@
 	</div>
 
 	<!-- Live Exam Preview -->
-	<div class="card bg-white shadow">
+	<div class="card shadow-base-content/10 shadow">
 		<div class="card-body">
 			<h2 class="card-title">Preview Live Ujian</h2>
 			{#if liveExams.length > 0}
 				<div class="space-y-3">
 					{#each liveExams as exam}
-						<div class="flex items-center gap-4 rounded border p-3">
+						<div
+							class="border-base-content/10 hover:bg-base-200 flex items-center gap-4 rounded border border-dashed p-3"
+						>
 							<iconify-icon icon="bx:video-recording" class="text-primary animate-pulse text-4xl"
 							></iconify-icon>
 							<div class="flex-1">
@@ -197,13 +199,14 @@
 	</div>
 
 	<!-- Announcements Table -->
-	<div class="card bg-white shadow">
+	<div class="card shadow-base-content/10 shadow">
 		<div class="card-body">
 			<h2 class="card-title">
 				Berita Pengumuman
-				<button class="btn btn-sm btn-secondary ml-5">
-					<iconify-icon icon="bx:plus"></iconify-icon> Tambah
-				</button>
+				<a href="/main/menu/posts" class="btn btn-sm btn-secondary ml-5">
+					Selengkapnya
+					<iconify-icon icon="bx:chevron-right"></iconify-icon>
+				</a>
 			</h2>
 			<div class="overflow-x-auto">
 				<table class="table-sm table">

@@ -46,7 +46,7 @@
 			<div class="bg-base-100 relative flex h-full flex-col gap-3 rounded-xl p-3">
 				<div class="absolute right-3 left-3 flex justify-between px-3">
 					<button
-						class="btn btn-sm btn-primary btn-soft drawer-button"
+						class="btn btn-sm btn-secondary btn-soft drawer-button"
 						onclick={() => (app.sidebar = !app.sidebar)}
 						aria-label="open sidebar"
 					>
@@ -54,7 +54,7 @@
 					</button>
 
 					<button
-						class="btn btn-sm btn-soft btn-primary drawer-button"
+						class="btn btn-sm btn-soft btn-secondary drawer-button"
 						onclick={() => (app.theme = app.theme == 'light' ? 'dark' : 'light')}
 						aria-label="change theme"
 					>
@@ -143,7 +143,7 @@
 				</a>
 			</li>
 			<li>
-				<a href="/main/vacancies/applicants">
+				<a href="/main/vacancies/applied">
 					<iconify-icon icon="bx:news"></iconify-icon>
 					Daftar Pelamar
 				</a>
@@ -218,10 +218,10 @@
 			</li>
 			<li class="mx-2"></li>
 			<li class="p-0">
-				<div class="menu-title py-0!">Informasi Umum</div>
+				<div class="menu-title py-0!">Informasi Akun</div>
 			</li>
 			<li>
-				<a href="/main/notifications">
+				<a href="/main/profile/notifications">
 					<iconify-icon icon="bx:bell"></iconify-icon>
 					Notifikasi
 				</a>

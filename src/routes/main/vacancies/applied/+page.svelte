@@ -142,7 +142,7 @@
 </Modal>
 
 <div class="flex flex-wrap items-center gap-2 px-3">
-	<h1 class="mt-1 ml-12 text-xl capitalize">Daftar Pengguna Eksternal / Pelamar</h1>
+	<h1 class="mt-1 ml-12 text-xl capitalize">Daftar Pelamar</h1>
 </div>
 
 <Toolbar bind:query {collections} {refresh}>
@@ -184,6 +184,8 @@
 				<!-- <th>ID</th> -->
 				<th>Username</th>
 				<th>Email</th>
+				<th>Posisi Jabatan</th>
+				<th>Divisi / Company</th>
 				<th>Status</th>
 				<th>Dibuat</th>
 				<th>Diupdate</th>

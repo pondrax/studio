@@ -78,7 +78,7 @@
 						bind:value={item.title}
 						onkeyup={() => {
 							item.slug = item.title
-								.toLowerCase()
+								?.toLowerCase()
 								.replace(/[^a-z0-9]+/g, '-')
 								.replace(/^-|-$/g, '');
 						}}

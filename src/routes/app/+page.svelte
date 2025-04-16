@@ -8,7 +8,7 @@
 
 <main class="mt-10 space-y-6 overflow-auto p-3">
 	<!-- Welcome Card -->
-	<div class="card bg-white shadow">
+	<div class="card shadow-base-content/10 shadow">
 		<div class="card-body">
 			<h2 class="card-title">Hi, {auth.username} 👋</h2>
 			{#if !profileCompleted}
@@ -24,7 +24,7 @@
 		</div>
 	</div>
 
-	<div class="card bg-white shadow">
+	<div class="card shadow-base-content/10 shadow">
 		<div class="card-body">
 			<h2 class="card-title">Jadwal yang akan datang</h2>
 			<div class="flex items-center gap-4">
@@ -41,7 +41,7 @@
 	</div>
 
 	<!-- Stats Overview -->
-	<div class="stats flex w-full shadow">
+	<div class="stats shadow-base-content/10 flex w-full shadow">
 		<div class="stat">
 			<div class="stat-figure text-info text-7xl">
 				<iconify-icon icon="bx:atom"></iconify-icon>
@@ -73,7 +73,7 @@
 	</div>
 
 	<!-- Vacancies List -->
-	<div class="card bg-white shadow">
+	<div class="card shadow-base-content/10 shadow">
 		<div class="card-body">
 			<h2 class="card-title">Lowongan Tersedia</h2>
 			<div class="overflow-x-auto">
@@ -106,7 +106,7 @@
 	</div>
 
 	<!-- Applied Applications -->
-	<div class="card bg-white shadow">
+	<div class="card shadow-base-content/10 shadow">
 		<div class="card-body">
 			<h2 class="card-title">Jabatan yang dilamar</h2>
 			<div class="overflow-x-auto">

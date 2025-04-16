@@ -29,12 +29,13 @@ export async function POST({ params, request, cookies }) {
       throw error(400, { message: 'User not exists' });
     }
 
-    const validPassword = await verify(String(existingUser.password), String(password), {
-      memoryCost: 19456,
-      timeCost: 2,
-      outputLen: 32,
-      parallelism: 1,
-    });
+    const validPassword = existingUser.password &&
+      await verify(existingUser.password, password, {
+        memoryCost: 19456,
+        timeCost: 2,
+        outputLen: 32,
+        parallelism: 1,
+      });
 
     if (!validPassword) {
       throw error(400, { message: 'Incorrect email or password' });
