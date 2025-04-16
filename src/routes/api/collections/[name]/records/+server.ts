@@ -25,12 +25,13 @@ export async function GET({ request, params, url: { searchParams } }) {
 
   const collectionName = params.name as keyof typeof schema;
 
-  const postUserIds = db.select({ userId: schema.posts.userId }).from(schema.posts).where(t.ilike(schema.posts.title, '%third%'));
-  const filterQuery = t.and(t.inArray(schema.users.id, postUserIds))
+  // const postUserIds = db.select({ userId: schema.posts.user_id }).from(schema.posts).where(t.ilike(schema.posts.title, '%third%'));
+  // const filterQuery = t.and(t.inArray(schema.users.id, postUserIds))
   // const filterQuery = undefined;
   // const x;
   // @ts-ignore
   let items = db.query[collectionName].findMany({
+
     // where: filterQuery,
     // where: ((table) => t.and(t.eq(table.id, table.email))),
     // columns: {
@@ -87,6 +88,7 @@ export async function POST({ params, request }) {
       const [itemId, fieldName] = key.split(':');
       if (!records[itemId]) records[itemId] = {};
 
+      // console.log(value)
       if (fieldName === 'password') {
         records[itemId][fieldName] = await hash(String(value), {
           memoryCost: 19456,

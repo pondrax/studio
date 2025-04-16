@@ -6,6 +6,7 @@ import { eq, sql } from "drizzle-orm";
 import users from "./users";
 import questionsCategory from "./questionsCategory";
 import questions from "./questions";
+import companies from "./companies";
 
 function updateSets(values: Record<string, any>[]) {
   return Object.assign(
@@ -29,6 +30,13 @@ const main = async () => {
       set: updateSets(roles),
     })
   console.log('Roles seeded');
+
+  await db.insert(schema.companies).values(companies)
+    .onConflictDoUpdate({
+      target: schema.companies.id,
+      set: updateSets(roles),
+    })
+  console.log('Companies seeded');
 
   await db.insert(schema.users).values(users)
     .onConflictDoUpdate({

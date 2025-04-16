@@ -82,7 +82,7 @@
 					/>
 					<div class="-my-1">Username</div>
 					<div class="join join-horizontal">
-						<a href="/main/profile" class="btn btn-xs btn-secondary join-item">Profile</a>
+						<a href="/main/profile" class="btn btn-xs btn-secondary join-item">Profil</a>
 						<a href="/" class="btn btn-xs btn-error join-item">Logout</a>
 					</div>
 				</div>
@@ -111,7 +111,7 @@
 			<li>
 				<a href="/main/menu/posts">
 					<iconify-icon icon="bx:book"></iconify-icon>
-					Posts
+					Berita
 				</a>
 			</li>
 			<li>
@@ -130,12 +130,12 @@
 			<li class="p-0">
 				<div class="menu-title py-0!">Manajemen Lowongan</div>
 			</li>
-			<li>
+			<!-- <li>
 				<a href="/main/vacancies/overview">
 					<iconify-icon icon="bx:news"></iconify-icon>
 					Overview
 				</a>
-			</li>
+			</li> -->
 			<li>
 				<a href="/main/vacancies/list">
 					<iconify-icon icon="bx:news"></iconify-icon>
@@ -163,6 +163,12 @@
 			<li class="mx-2"></li>
 			<li class="p-0">
 				<div class="menu-title py-0!">Master Data</div>
+			</li>
+			<li>
+				<a href="/main/questions/templates">
+					<iconify-icon icon="bx:news"></iconify-icon>
+					Template Pertanyaan
+				</a>
 			</li>
 			<li>
 				<a href="/main/questions/categories">
@@ -195,7 +201,7 @@
 			<li>
 				<a href="/main/master/companies">
 					<iconify-icon icon="bx:group"></iconify-icon>
-					Divisi
+					Company / Divisi
 				</a>
 			</li>
 			<li>
@@ -208,6 +214,22 @@
 				<a href="/main/master/references">
 					<iconify-icon icon="bx:data"></iconify-icon>
 					Referensi
+				</a>
+			</li>
+			<li class="mx-2"></li>
+			<li class="p-0">
+				<div class="menu-title py-0!">Informasi Umum</div>
+			</li>
+			<li>
+				<a href="/main/notifications">
+					<iconify-icon icon="bx:bell"></iconify-icon>
+					Notifikasi
+				</a>
+			</li>
+			<li>
+				<a href="/main/profile">
+					<iconify-icon icon="bx:user"></iconify-icon>
+					Profil
 				</a>
 			</li>
 		</ul>

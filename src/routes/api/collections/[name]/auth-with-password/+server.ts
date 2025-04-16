@@ -41,7 +41,7 @@ export async function POST({ params, request, cookies }) {
     }
 
     const sessionId = await Session.create({
-      userId: existingUser.id,
+      user_id: existingUser.id,
       table: collectionName,
       cookies,
       expired: d().add(7, 'days').toDate()

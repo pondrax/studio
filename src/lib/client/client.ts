@@ -164,7 +164,6 @@ export class Client<Schema extends Record<string, any>> {
           Object.entries(params).forEach(([key, value]) =>
             url.searchParams.append(key, String(value))
           );
-          console.log(params.expand)
         }
 
         let request = new Request(url.toString(), {
@@ -178,8 +177,10 @@ export class Client<Schema extends Record<string, any>> {
         const forms = new FormData();
         for (const [itemId, data] of Object.entries(records)) {
           for (let [key, value] of Object.entries(data)) {
-            // console.log(value)
-            if (value instanceof Object) {
+            console.log(value)
+            if (value instanceof FileList) {
+            }
+            else if (value instanceof Object) {
               value = JSON.stringify(value);
             }
             forms.append(`${itemId}:${key}`, value as any);

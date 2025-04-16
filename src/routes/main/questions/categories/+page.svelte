@@ -63,11 +63,11 @@
 	{#snippet children(items)}
 		<form class="mt-5 flex flex-col gap-5" onsubmit={() => save(items)}>
 			{#each Object.values(items) as item}
-				<label class="label floating-label">
+				<!-- <label class=" floating-label">
 					<span>ID</span>
 					<input type="text" class="input w-full" placeholder="ID" bind:value={item.id} />
-				</label>
-				<label class="label floating-label">
+				</label> -->
+				<label class="floating-label">
 					<span>Kategori Pertanyaan</span>
 					<input
 						type="text"
@@ -78,7 +78,7 @@
 						autocomplete="off"
 					/>
 				</label>
-				<label class="label floating-label">
+				<label class="floating-label">
 					<span>Deskripsi</span>
 					<textarea class="textarea w-full" placeholder="Deskripsi" bind:value={item.description}
 					></textarea>

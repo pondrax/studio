@@ -27,8 +27,13 @@
 			<img src="/favicon.png" alt="logo" class="w-10" />
 			<p>Masuk untuk melanjutkan</p>
 			<label class="label floating-label">
-				<span>Email</span>
-				<input type="email" class="input w-full" placeholder="Email" bind:value={form.identity} />
+				<span>Username / Email</span>
+				<input
+					type="text"
+					class="input w-full"
+					placeholder="Username / Email"
+					bind:value={form.identity}
+				/>
 			</label>
 			<label class="label floating-label">
 				<span>Password</span>

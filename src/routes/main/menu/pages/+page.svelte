@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { Modal, Select, Toolbar } from '$lib/components';
+	import { Editor, Modal, Select, Toolbar } from '$lib/components';
 	import { app, api, d, autofocus, createId, queryStringify } from '$lib/app';
 
 	type Collections = Awaited<ReturnType<typeof getCollections>>;
@@ -90,8 +90,7 @@
 				</label>
 				<div class="floating-label">
 					<span>Isi Konten</span>
-					<textarea class="textarea w-full" placeholder="Isi Konten" bind:value={item.content}
-					></textarea>
+					<Editor placeholder="Isi Konten" bind:value={item.content}></Editor>
 				</div>
 				<!-- <div class="floating-label">
 					<span>Media</span>
@@ -265,7 +264,7 @@
 						<td>
 							<span class="font-bold">{item.title}</span>
 						</td>
-						<td>
+						<td class="max-w-40">
 							{@html item.content}
 						</td>
 						<td class="w-1 whitespace-nowrap">

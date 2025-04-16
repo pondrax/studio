@@ -8,7 +8,7 @@
 	);
 </script>
 
-<div>
+<div class="flex gap-1">
 	{#if mask}
 		{maskedValue}
 	{:else}

@@ -30,7 +30,7 @@
 
 {#if data}
 	<dialog class="modal modal-open">
-		<div class="modal-box relative">
+		<div class="modal-box relative w-11/12 max-w-xl">
 			<form method="dialog">
 				<button
 					class="btn btn-sm btn-circle btn-ghost absolute top-4 right-2"

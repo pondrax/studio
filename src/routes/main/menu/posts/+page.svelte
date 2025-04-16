@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { Modal, Select, Toolbar } from '$lib/components';
+	import { Editor, Modal, Select, Toolbar } from '$lib/components';
 	import { app, api, d, autofocus, createId, queryStringify } from '$lib/app';
 
 	type Collections = Awaited<ReturnType<typeof getCollections>>;
@@ -91,8 +91,9 @@
 				</label>
 				<div class="floating-label">
 					<span>Isi Konten</span>
-					<textarea class="textarea w-full" placeholder="Isi Konten" bind:value={item.content}
-					></textarea>
+					<Editor bind:value={item.content} placeholder="Isi Konten" />
+					<!-- <textarea class="textarea w-full" placeholder="Isi Konten" bind:value={item.content}
+					></textarea> -->
 				</div>
 				<!-- <div class="floating-label">
 					<span>Media</span>
@@ -100,7 +101,7 @@
 						type="file"
 						class="file-input w-full"
 						placeholder="Media"
-						bind:value={item.media}
+						bind:files={item.media}
 					/>
 				</div> -->
 				<!-- <div>
@@ -177,7 +178,7 @@
 </Modal>
 
 <div class="flex flex-wrap items-center gap-2 px-3">
-	<h1 class="mt-1 ml-12 text-xl capitalize">Daftar Postingan</h1>
+	<h1 class="mt-1 ml-12 text-xl capitalize">Daftar Postingan Berita</h1>
 </div>
 
 <Toolbar bind:query {collections} {refresh}>
@@ -267,7 +268,7 @@
 						<td>
 							<span class="font-bold">{item.title}</span>
 						</td>
-						<td>
+						<td class="max-w-40">
 							{@html item.content}
 						</td>
 						<td class="w-1 whitespace-nowrap">

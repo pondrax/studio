@@ -96,6 +96,9 @@
 	:global(.sv_dropdown) {
 		top: 100%;
 	}
+	:global(.sv-control--selection) {
+		gap: 5px !important;
+	}
 	/* :global(.sv_dropdown.is-open) {
 		z-index: 5 !important;
 	} */
