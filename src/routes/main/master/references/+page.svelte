@@ -3,44 +3,70 @@
 	import { Modal, Toolbar } from '$lib/components';
 	import { app, api, d, autofocus, createId, queryStringify } from '$lib/app';
 
+	type CollectionsCategory = Awaited<ReturnType<typeof getCollectionsCategory>>;
 	type Collections = Awaited<ReturnType<typeof getCollections>>;
+	type ItemCategory = CollectionsCategory['items'][number];
 	type Item = Collections['items'][number];
 
-	let collections: Collections | undefined = $state();
+	let collections: CollectionsCategory | undefined = $state();
 
 	let selections: Item[] = $state([]);
 	let query = $state({
 		page: Number(page.url.searchParams.get('page')) || 1,
 		perPage: Number(page.url.searchParams.get('perPage')) || 30,
-		sort: page.url.searchParams.get('sort') || '-created',
+		sort: page.url.searchParams.get('sort') || 'name',
 		filter: page.url.searchParams.get('filter') || '',
-		expand: page.url.searchParams.get('expand') || ''
+		expand: 'references'
 	});
 
 	type Forms = {
+		saveCategory?: Record<string, ItemCategory>;
 		save?: Record<string, Item>;
 		del?: Item[];
 	};
 
 	let forms: Forms = $state({
+		saveCategory: undefined,
 		save: undefined,
 		del: undefined
 	});
 
+	let options = $state({
+		active: false
+	});
+
+	async function getCollectionsCategory() {
+		let result = await api.from('referencesCategory').getList(query);
+		result = {
+			...result,
+			items: result.items.map((item) => {
+				return {
+					...item,
+					references: item.references.sort((a, b) => (a.order || 0) - (b.order || 0)) || []
+				};
+			})
+		};
+		return result;
+	}
 	async function getCollections() {
-		const result = await api.from('questionsCategory').getList(query);
+		const result = await api.from('references').getList(query);
 		return result;
 	}
 
+	async function saveCategory(data: NonNullable<Forms['saveCategory']>) {
+		const result = await api.from('referencesCategory').save(data);
+		forms.save = undefined;
+		refresh();
+	}
 	async function save(data: NonNullable<Forms['save']>) {
-		const result = await api.from('questionsCategory').save(data);
+		const result = await api.from('references').save(data);
 		forms.save = undefined;
 		refresh();
 	}
 
 	async function del(data: NonNullable<Forms['del']>) {
 		const ids = data.map((item) => item.id);
-		await api.from('questionsCategory').delete(ids);
+		await api.from('referencesCategory').delete(ids);
 		forms.del = undefined;
 		refresh();
 	}
@@ -50,7 +76,7 @@
 	}
 	async function refresh() {
 		reset();
-		collections = await getCollections();
+		collections = await getCollectionsCategory();
 	}
 
 	$effect(() => {
@@ -59,16 +85,16 @@
 	});
 </script>
 
-<Modal title="Simpan Data" bind:data={forms.save}>
+<Modal title="Simpan Data" bind:data={forms.saveCategory}>
 	{#snippet children(items)}
-		<form class="mt-5 flex flex-col gap-5" onsubmit={() => save(items)}>
+		<form class="mt-5 flex flex-col gap-5" onsubmit={() => saveCategory(items)}>
 			{#each Object.values(items) as item}
 				<!-- <label class=" floating-label">
 					<span>ID</span>
 					<input type="text" class="input w-full" placeholder="ID" bind:value={item.id} />
 				</label> -->
 				<label class="floating-label">
-					<span>Kategori Pertanyaan</span>
+					<span>Kategori Referensi</span>
 					<input
 						type="text"
 						class="input w-full"
@@ -82,10 +108,6 @@
 					<span>Deskripsi</span>
 					<textarea class="textarea w-full" placeholder="Deskripsi" bind:value={item.description}
 					></textarea>
-				</label>
-				<label class="label">
-					<input type="checkbox" bind:checked={item.protected} class="toggle" />
-					{item.protected ? 'Protected' : 'Unprotected'}
 				</label>
 			{/each}
 			<div>
@@ -114,96 +136,76 @@
 	{/snippet}
 </Modal>
 
-<div class="flex flex-wrap items-center gap-2 px-3">
-	<h1 class="mt-1 ml-12 text-xl capitalize">Daftar Referensi</h1>
-</div>
+<main class=" space-y-3 overflow-auto">
+	<div class="flex flex-wrap items-center gap-2 px-3">
+		<h1 class="mt-1 ml-12 text-xl capitalize">Daftar Referensi</h1>
+	</div>
 
-<Toolbar bind:query {collections} {refresh}>
-	<button
-		class="btn btn-sm btn-secondary"
-		aria-label="add"
-		onclick={() => (forms.save = { [createId()]: {} as Item })}
-	>
-		<iconify-icon icon="bx:plus" class="text-lg"></iconify-icon> Tambah
-	</button>
-	{#if selections.length > 0}
+	<Toolbar bind:query {collections} {refresh}>
 		<button
-			class="btn btn-sm btn-error"
-			aria-label="delete"
-			onclick={() => (forms.del = selections)}
-			disabled={app.loading}
+			class="btn btn-sm btn-secondary"
+			aria-label="add"
+			onclick={() => (forms.save = { [createId()]: {} as Item })}
 		>
-			<iconify-icon icon="bx:trash" class="text-lg"></iconify-icon> Hapus
+			<iconify-icon icon="bx:plus" class="text-lg"></iconify-icon> Tambah Kategori
 		</button>
-	{/if}
-</Toolbar>
-<div class="ml-2 overflow-x-auto">
-	<table class="table-sm table-pin-rows table-pin-cols table">
-		<thead>
-			<tr>
-				<th class="sticky z-1 w-1">
-					<input
-						type="checkbox"
-						class="checkbox checkbox-sm"
-						checked={selections.length > 0 && selections.length === collections?.items.length}
-						onchange={() => {
-							selections =
-								collections && selections.length < collections.items.length
-									? collections.items
-									: [];
-						}}
-					/>
-				</th>
-				<!-- <th>ID</th> -->
-				<th>Kategori</th>
-				<th>Deskripsi</th>
-				<th>Dibuat</th>
-				<th>
-					Diupdate
-					<!-- <span class="text-base-content/50 font-light"> datetime </span> -->
-				</th>
-			</tr>
-		</thead>
-		<tbody>
-			{#if collections?.items}
-				{@const items = collections.items}
-				{#each collections.items || [] as item (item.id)}
-					<tr>
-						<th class="sticky z-1">
-							<div class="flex items-center gap-2">
-								<input
-									type="checkbox"
-									class="checkbox checkbox-sm"
-									bind:group={selections}
-									value={item}
-								/>
+		<button
+			class="btn btn-sm btn-info btn-soft"
+			aria-label="show/hide"
+			onclick={() => (options.active = !options.active)}
+		>
+			<iconify-icon icon="bx:show" class="text-lg"></iconify-icon> Tampilkan Non Aktif
+		</button>
+		{#if selections.length > 0}
+			<button
+				class="btn btn-sm btn-error"
+				aria-label="delete"
+				onclick={() => (forms.del = selections)}
+				disabled={app.loading}
+			>
+				<iconify-icon icon="bx:trash" class="text-lg"></iconify-icon> Hapus
+			</button>
+		{/if}
+	</Toolbar>
+	<div class="px-3">
+		{#each collections?.items || [] as references (references.id)}
+			{@const refItems = references.references || []}
+			<div>
+				<div class="text-lg font-semibold">{references.name}</div>
+				<div>{references.description}</div>
+				<div class="textarea w-full space-y-1 space-x-1 p-1">
+					{#each references.references || [] as ref}
+						{#if options.active || ref.active}
+							<div class="join">
+								<button class="btn btn-sm btn-secondary btn-soft join-item">
+									{ref.name}
+								</button>
 								<button
-									class="btn btn-xs btn-soft"
-									aria-label="edit"
-									onclick={() => (forms.save = { [item.id]: item })}
+									class="btn btn-sm btn-secondary btn-soft join-item"
+									aria-label="show/hidden"
+									onclick={async () => {
+										save({
+											[ref.id]: { ...ref, active: !ref.active }
+										});
+										// (ref.active = !ref.active)
+									}}
 								>
-									<iconify-icon icon="bx:pencil"></iconify-icon>
+									<iconify-icon icon={ref.active ? 'bx:hide' : 'bx:show'}></iconify-icon>
+								</button>
+
+								<button class="btn btn-sm btn-error btn-soft join-item" aria-label="del">
+									<iconify-icon icon="bx:trash"></iconify-icon>
 								</button>
 							</div>
-						</th>
-						<!-- <td>
-							{item.id}
-						</td> -->
-						<td>
-							{item.name}
-						</td>
-						<td>
-							{item.description}
-						</td>
-						<td class="w-1 whitespace-nowrap">
-							{d(item.created).format('DD MMM YYYY HH:mm')}
-						</td>
-						<td class="w-1 whitespace-nowrap">
-							{d(item.updated).format('DD MMM YYYY HH:mm')}
-						</td>
-					</tr>
-				{/each}
-			{/if}
-		</tbody>
-	</table>
-</div>
+						{/if}
+					{/each}
+
+					<button class="btn btn-sm btn-info join-item" aria-label="add">
+						<iconify-icon icon="bx:plus"></iconify-icon>
+					</button>
+				</div>
+				<div class="divider"></div>
+			</div>
+		{/each}
+	</div>
+</main>

@@ -21,8 +21,8 @@
 				{collections?.elapsed}ms •
 				{((collections?.page || 1) - 1) * query.perPage + 1}
 				-
-				{(collections?.page || 1) * query.perPage}
-				of
+				{Math.min(collections?.totalItems, (collections?.page || 1) * query.perPage)}
+				dari
 				{collections?.totalItems}
 			</button>
 			<!-- svelte-ignore a11y_no_noninteractive_tabindex -->

@@ -3,6 +3,10 @@
 	let { children } = $props();
 </script>
 
+<svelte:head>
+	<title>Ujian Online</title>
+</svelte:head>
+
 <div>
 	<div class="fixed top-3 right-3">
 		<button

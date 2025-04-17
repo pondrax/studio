@@ -19,7 +19,9 @@
 				<p class="text-gray-500">
 					Selamat Anda telah lulus ujian, anda dapat menempuh tahap selanjutnya.
 				</p>
-				<div><a href="/app/" class="btn btn-secondary btn-sm">Lihat Hasil Ujian</a></div>
+				<div>
+					<a href="/app/" class="btn btn-secondary btn-sm">Lihat Hasil Ujian</a>
+				</div>
 			{/if}
 		</div>
 	</div>
@@ -49,7 +51,7 @@
 			<div class="stat-title">Trial Ujian Online</div>
 			<div class="stat-value text-info">10 <span class="text-gray-500">Soal</span></div>
 			<div class="stat-actions">
-				<button class="btn btn-sm btn-info">Mulai Trial Ujian</button>
+				<a href="/exam" class="btn btn-sm btn-info">Mulai Trial Ujian (Buka SEB)</a>
 			</div>
 		</div>
 

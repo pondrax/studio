@@ -64,6 +64,7 @@ export async function GET({ request, params, url: { searchParams } }) {
 
   // @ts-ignore
   const totalItems = await db.$count(schema[collectionName]);
+  // const totalItems = 10
   const totalPages = Math.ceil(totalItems / perPage);
   logger({ level: 0, data: {}, request });
   return json({

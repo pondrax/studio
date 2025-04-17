@@ -39,6 +39,9 @@ export type Schema = AppSchema & {
   pages: {
     users?: AppSchema["users"];
   }
+  referencesCategory: {
+    references: AppSchema["references"][];
+  }
 }
 
 // type Expandables = {

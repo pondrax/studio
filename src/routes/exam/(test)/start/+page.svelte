@@ -12,13 +12,6 @@
 	});
 	async function getCollections() {
 		let result = await api.from('questions').getList(query);
-		result = {
-			...result,
-			items: result.items.map((item) => ({
-				...item,
-				options: item.options
-			}))
-		};
 		return result;
 	}
 
@@ -147,16 +140,16 @@
 		</div>
 
 		<!-- Sidebar -->
-		<div class="flex h-full w-64 flex-col justify-start gap-5">
+		<div class="flex h-full w-64 shrink-0 flex-col justify-start gap-5">
 			<div>
 				<button onclick={finishExam} class="btn btn-error w-full">Selesai</button>
 			</div>
 			<div class="grid grid-cols-5 gap-2">
 				{#each questions as _, index}
 					<button
-						class="btn btn-sm ring"
-						class:btn-primary={index === currentQuestionIndex}
-						class:btn-success={answers[index]?.answer}
+						class="btn btn-sm border-base-content ring-secondary ring-offset-1"
+						class:ring-2={index === currentQuestionIndex}
+						class:btn-secondary={answers[index]?.answer}
 						onclick={() => (currentQuestionIndex = index)}
 					>
 						{index + 1}

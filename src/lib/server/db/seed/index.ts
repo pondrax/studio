@@ -7,6 +7,8 @@ import users from "./users";
 import questionsCategory from "./questionsCategory";
 import questions from "./questions";
 import companies from "./companies";
+import referencesCategory from "./referencesCategory";
+import references from "./references";
 
 function updateSets(values: Record<string, any>[]) {
   return Object.assign(
@@ -59,6 +61,19 @@ const main = async () => {
     })
   console.log('Questions seeded');
 
+  await db.insert(schema.referencesCategory).values(referencesCategory)
+    .onConflictDoUpdate({
+      target: schema.referencesCategory.id,
+      set: updateSets(referencesCategory),
+    })
+  console.log('References Category seeded');
+
+  await db.insert(schema.references).values(references)
+    .onConflictDoUpdate({
+      target: schema.references.id,
+      set: updateSets(references),
+    })
+  console.log('References  seeded');
 
 };
 

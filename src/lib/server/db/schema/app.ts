@@ -1,6 +1,6 @@
 import { id, created, updated } from "../utils";
 import { relations } from "drizzle-orm";
-import { pgTable, text, boolean, pgEnum, json } from "drizzle-orm/pg-core";
+import { pgTable, text, boolean, pgEnum, json, integer, timestamp } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
   id: id(),
@@ -81,16 +81,6 @@ export const comments = pgTable("comments", {
 
 
 
-export const questionsCategory = pgTable("questionsCategory", {
-  id: id(),
-  name: text("name").notNull(),
-  description: text("description").unique(),
-  status: boolean('status').default(true),
-  protected: boolean("protected").default(false),
-  created,
-  updated,
-});
-
 export const questions = pgTable("questions", {
   id: id(),
   question: text("question").notNull(),
@@ -101,18 +91,71 @@ export const questions = pgTable("questions", {
   updated,
 });
 
+export const questionsCategory = pgTable("questionsCategory", {
+  id: id(),
+  name: text("name").notNull(),
+  description: text("description").unique(),
+  status: boolean('status').default(true),
+  protected: boolean("protected").default(false),
+  created,
+  updated,
+});
 
+
+export const questionsTemplate = pgTable("questionsTemplate", {
+  id: id(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  grouping: json("grouping").default([]),
+  created,
+  updated,
+});
+export const vacanciesStatus = pgEnum("status", ["draft", "published", "closed"])
 export const vacancies = pgTable("vacancies", {
   id: id(),
   title: text("title").notNull(),
   description: text("description"),
   media: text("media"),
   category: text("category").notNull(),
+  criteria: json("criteria").default([]),
+  quota: integer("quota").default(10),
+  start: timestamp("start").notNull(),
+  end: timestamp("end").notNull(),
+  status: vacanciesStatus("status").default("draft"),
   created,
   updated,
 });
 
+export const vacanciesAppliedStatus = pgEnum("status", ["applied", "passed", "rejected", "interview", "offer", "hired"])
+export const vacanciesApplied = pgTable("vacanciesApplied", {
+  id: id(),
+  user_id: text("user_id").notNull(),
+  category: text("category").notNull(),
+  status: vacanciesAppliedStatus("status").default("applied"),
+  created,
+  updated,
+});
 
+export const referencesCategory = pgTable("referencesCategory", {
+  id: id(),
+  name: text("name").notNull().unique(),
+  description: text("description"),
+  category: text("category").notNull(),
+  type: text("type").notNull(),
+  created,
+  updated,
+});
+
+export const references = pgTable("references", {
+  id: id(),
+  order: integer("order").default(0),
+  name: text("name").notNull(),
+  value: text("value").default(''),
+  category_id: text("category_id").notNull().references(() => referencesCategory.id),
+  active: boolean("active").default(false),
+  created,
+  updated,
+});
 
 export const userRelations = relations(users, ({ many, one }) => ({
   role: one(roles, { fields: [users.role_id], references: [roles.id] }),
@@ -149,7 +192,12 @@ export const companiesRelations = relations(companies, ({ many }) => ({
   users: many(users),
   vacancies: many(vacancies),
 }));
-
+export const referencesCategoryRelations = relations(referencesCategory, ({ many }) => ({
+  references: many(references),
+}))
+export const referencesRelations = relations(references, ({ one }) => ({
+  category: one(referencesCategory, { fields: [references.category_id], references: [referencesCategory.id] }),
+}))
 
 
 
@@ -164,4 +212,8 @@ export type AppSchema = {
   questions: typeof questions.$inferSelect;
   questionsCategory: typeof questionsCategory.$inferSelect;
   vacancies: typeof vacancies.$inferSelect;
+  vacanciesApplied: typeof vacanciesApplied.$inferSelect;
+  referencesCategory: typeof referencesCategory.$inferSelect;
+  references: typeof references.$inferSelect;
+
 }

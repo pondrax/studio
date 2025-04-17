@@ -95,7 +95,7 @@
 			<li>
 				<a href="/app/">
 					<iconify-icon icon="bx:bxs-dashboard"></iconify-icon>
-					Dashboard
+					Overview
 				</a>
 			</li>
 			<li></li>

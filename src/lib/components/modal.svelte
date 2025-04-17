@@ -1,6 +1,7 @@
 <script lang="ts" generics="T">
 	import type { Snippet } from 'svelte';
 
+	let el = $state();
 	type Props = {
 		children?: Snippet<[T]>;
 		action?: Snippet<[T]>;
@@ -17,6 +18,7 @@
 
 	$effect(() => {
 		if (data) {
+			(el as HTMLDialogElement)?.showModal();
 			const focusElement = document.querySelector('[data-autofocus]');
 			// console.log(focusElement, document.activeElement);
 			if (focusElement instanceof HTMLInputElement) {
@@ -29,7 +31,7 @@
 <svelte:window onkeydown={handleClose} />
 
 {#if data}
-	<dialog class="modal modal-open">
+	<dialog bind:this={el} class="modal modal-open">
 		<div class="modal-box relative w-11/12 max-w-xl">
 			<form method="dialog">
 				<button
